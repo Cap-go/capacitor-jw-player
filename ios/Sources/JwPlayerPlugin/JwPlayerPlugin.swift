@@ -473,11 +473,27 @@ extension JwPlayerPlugin: CallbackHandler {
     }
 }
 
-// Make CustomPlayerViewController conform to the correct delegate protocol
-class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewControllerFullScreenDelegate {
+// Add AVPictureInPictureControllerDelegate conformance
+class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewControllerUIDelegate {
+    func playerViewController(_ controller: JWPlayerKit.JWPlayerViewController, sizeChangedFrom oldSize: CGSize, to newSize: CGSize) {
+        print("[JWPlayer] Size changed from \(oldSize) to \(newSize)")
+        let sizeData: [String: Any] = [
+            "oldSize": ["width": oldSize.width, "height": oldSize.height],
+            "newSize": ["width": newSize.width, "height": newSize.height]
+        ]
+        callbackHandler?.notifyEventListener("playerSizeChange", data: sizeData)
+    }
+    
+    func playerViewController(_ controller: JWPlayerKit.JWPlayerViewController, screenTappedAt position: CGPoint) {
+        print("[JWPlayer] Screen tapped at: \(position)")
+        let positionData: [String: Any] = ["x": position.x, "y": position.y]
+        callbackHandler?.notifyEventListener("screenTapped", data: positionData)
+    }
+    
     
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
+    private var closeButton: UIButton! // Custom close button
     
     // Standard init is unavailable
     @available(*, unavailable)
@@ -492,8 +508,9 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         self.callbackHandler = callbackHandler
         super.init(nibName: nil, bundle: nil)
         
-        // Removed setting self.fullscreenDelegate = self as it seems unavailable
-        print("[JWPlayer] Conforming to JWPlayerViewControllerFullScreenDelegate")
+        // Set UI delegate
+        self.uiDelegate = self
+        print("[JWPlayer] Set self as JWPlayerViewControllerUIDelegate")
         
         // Enable PiP
         self.allowsPictureInPicturePlayback = true
@@ -507,8 +524,9 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         self.playerConfig = nil
         super.init(coder: coder)
         
-        // Removed setting self.fullscreenDelegate = self
-        print("[JWPlayer] Conforming to JWPlayerViewControllerFullScreenDelegate (coder init)")
+        // Set UI delegate
+        self.uiDelegate = self
+        print("[JWPlayer] Set self as JWPlayerViewControllerUIDelegate (coder init)")
         
         // Enable PiP even if initialized from coder
         self.allowsPictureInPicturePlayback = true
@@ -536,13 +554,31 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Configuring player from init config")
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
+            
+            // Attempt to explicitly show PiP button if possible with this SDK
+            // Note: JWControlType might require specific strings or might not exist
+            // We use a try-catch block to handle potential errors
+            do {
+                // Try common identifiers for PiP button
+//                if let pipControlType = JWControlType(rawValue: "pictureInPictureButton") {
+//                    try player.setVisibility(true, for: [pipControlType])
+//                    print("[JWPlayer] Attempted to set PiP button visible")
+//                } else {
+//                    print("[JWPlayer] JWControlType for PiP not found with rawValue 'pictureInPictureButton'")
+//                }
+            } catch {
+                 print("[JWPlayer] Error setting PiP button visibility: \(error.localizedDescription)")
+            }
+            
         } else {
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])
         }
+        
+        // Add the custom close button
+        setupCloseButton()
     }
     
-    // Since the player view might be created after viewDidLoad, also check in viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
         print("[JWPlayer] viewDidAppear")
         super.viewDidAppear(animated)
@@ -553,30 +589,87 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         print("[JWPlayer] Playback started")
     }
     
-    // MARK: - JWPlayerViewControllerFullScreenDelegate Methods
-    
-    // This method is called when the fullscreen button is tapped
-    func playerViewControllerWillGoFullScreen(_ controller: JWPlayerViewController) -> JWFullScreenViewController? {
-        print("[JWPlayer] playerViewControllerWillGoFullScreen called - dismissing player")
-        dismiss(animated: true)
-        return nil // Prevent default fullscreen transition
+    // Setup and add the custom close button
+    private func setupCloseButton() {
+        closeButton = UIButton(type: .custom)
+        closeButton.setTitle("✕", for: .normal)
+        closeButton.setTitleColor(.white, for: .normal)
+        closeButton.backgroundColor = UIColor(white: 0, alpha: 0.6)
+        closeButton.layer.cornerRadius = 15 // Smaller corner radius
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        
+        // Position the button in the top-left corner
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(closeButton)
+        
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            closeButton.widthAnchor.constraint(equalToConstant: 30),
+            closeButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        // Make sure it's always on top
+        closeButton.layer.zPosition = 1000
+        // Initially visible, will be updated by delegate method
+        closeButton.alpha = 1.0
+        print("[JWPlayer] Custom close button added")
     }
     
-    // Required methods from JWPlayerViewControllerFullScreenDelegate (can be empty if not needed)
-    func playerViewControllerDidGoFullScreen(_ controller: JWPlayerViewController) {
-        print("[JWPlayer] playerViewControllerDidGoFullScreen called (required stub)")
-        // No specific action needed here for our use case
+    // Action for the custom close button
+    @objc private func closeButtonTapped() {
+        print("[JWPlayer] Custom close button tapped - dismissing player")
+        dismiss(animated: true) { [weak self] in
+             self?.callbackHandler?.onPlayerDismissed()
+        }
     }
     
-    func playerViewControllerWillDismissFullScreen(_ controller: JWPlayerViewController) {
-        print("[JWPlayer] playerViewControllerWillDismissFullScreen called (required stub) - dismissing player anyway")
-        // We might want to ensure dismissal here too, just in case
-        dismiss(animated: true)
+    // MARK: - JWPlayerViewControllerUIDelegate Method
+    
+    func playerViewController(_ controller: JWPlayerViewController, controlBarVisibilityChanged isVisible: Bool, frame: CGRect) {
+        print("[JWPlayer] Control bar visibility changed: \(isVisible)")
+        let targetAlpha: CGFloat = isVisible ? 1.0 : 0.0
+        
+        // Set alpha directly without animation
+        // Ensure closeButton is not nil before accessing
+        guard let button = self.closeButton else { return }
+        button.alpha = targetAlpha
     }
     
-    func playerViewControllerDidDismissFullScreen(_ controller: JWPlayerViewController) {
-        print("[JWPlayer] playerViewControllerDidDismissFullScreen called (required stub)")
-        // The view controller is already dismissed, handle any cleanup if needed
-        // The onPlayerDismissed callback should handle the plugin state cleanup
+    // MARK: - AVPictureInPictureControllerDelegate Methods (Required Stubs)
+    // Implement required methods, even if empty, to satisfy the protocol.
+    
+    override func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print("[JWPlayer] PiP Will Start")
+        // Handle UI changes before PiP starts if needed
+    }
+    
+    override func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print("[JWPlayer] PiP Did Start")
+        // Handle UI changes after PiP starts if needed
+    }
+    
+    override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        print("[JWPlayer] PiP Failed to Start: \(error.localizedDescription)")
+        // Handle error
+    }
+    
+    override func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print("[JWPlayer] PiP Will Stop")
+        // Handle UI changes before PiP stops if needed
+    }
+    
+    override func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        print("[JWPlayer] PiP Did Stop")
+        // Handle UI changes after PiP stops if needed
+    }
+    
+    override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        print("[JWPlayer] PiP Restore UI Requested")
+        // Restore the player UI. Call completionHandler(true) when done.
+        // Since our player is always presented modally, we might just dismiss it or handle it based on app flow.
+        // For now, we just complete the handler.
+        completionHandler(true)
     }
 }
