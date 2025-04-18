@@ -11,7 +11,8 @@ import AVKit // Import AVKit for AVAudioSession
 // Protocol for callback handling
 protocol CallbackHandler {
     func notifyEventListener(_ eventName: String, data: [String: Any]?)
-    func onPlayerDismissed()
+    func onPlayerDismissed(isPiPDismissal: Bool) // Track dismissal source
+    func rePresentPlayerRequested() // Request plugin to re-present
 }
 
 
@@ -139,10 +140,15 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
         
         DispatchQueue.main.async(execute: DispatchWorkItem {
             print("[JWPlayer] Creating player view controller with config")
-            // Pass the configuration directly
+            // Ensure any previous instance is fully dismissed first
+            if self.viewController != nil {
+                print("[JWPlayer] Warning: Play called while a player VC might still exist. Forcing cleanup.")
+                self.viewController = nil
+            }
+            
             let viewController = CustomPlayerViewController(config: finalConfig, callbackHandler: self)
             viewController.modalPresentationStyle = .fullScreen
-            self.viewController = viewController
+            self.viewController = viewController // Keep strong reference
             print("[JWPlayer] Resolving play call")
             call.resolve()
             print("[JWPlayer] Presenting view controller")
@@ -466,10 +472,41 @@ extension JwPlayerPlugin: CallbackHandler {
         notifyListeners(eventName, data: data)
     }
     
-    func onPlayerDismissed() {
-        print("[JWPlayer] Player dismissed")
-        self.viewController = nil
-        self.notifyListeners("playerDismissed", data: nil)
+    func onPlayerDismissed(isPiPDismissal: Bool) {
+        print("[JWPlayer] Player dismissed callback. Was PiP dismissal: \(isPiPDismissal)")
+        // Only nil out the reference if it wasn't a dismissal for starting PiP
+        if !isPiPDismissal {
+            print("[JWPlayer] Manual dismissal detected, releasing VC reference.")
+            self.viewController = nil
+            self.notifyListeners("playerDismissed", data: nil)
+        } else {
+             print("[JWPlayer] PiP dismissal detected, keeping VC reference for potential restore.")
+             // Optionally notify JS that PiP started if needed
+             self.notifyListeners("pipStarted", data: nil)
+        }
+    }
+    
+    func rePresentPlayerRequested() {
+        print("[JWPlayer] Re-present player requested")
+        guard let vc = self.viewController else {
+            print("[JWPlayer] Error: Cannot re-present, view controller is nil.")
+            return
+        }
+        guard let bridgeVC = self.bridge?.viewController else {
+            print("[JWPlayer] Error: Cannot re-present, bridge view controller is nil.")
+            return
+        }
+        
+        // Ensure it's not already being presented or presenting something else
+        if vc.isBeingPresented || vc.presentingViewController != nil || bridgeVC.presentedViewController != nil {
+             print("[JWPlayer] Warning: Cannot re-present, presentation context busy.")
+             return
+         }
+        
+        DispatchQueue.main.async {
+            print("[JWPlayer] Re-presenting player view controller")
+            bridgeVC.present(vc, animated: true)
+        }
     }
 }
 
@@ -494,6 +531,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
     private var closeButton: UIButton! // Custom close button
+    private var isDismissingForPiP: Bool = false // Flag for PiP dismissal
     
     // Standard init is unavailable
     @available(*, unavailable)
@@ -555,21 +593,6 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
             
-            // Attempt to explicitly show PiP button if possible with this SDK
-            // Note: JWControlType might require specific strings or might not exist
-            // We use a try-catch block to handle potential errors
-            do {
-                // Try common identifiers for PiP button
-//                if let pipControlType = JWControlType(rawValue: "pictureInPictureButton") {
-//                    try player.setVisibility(true, for: [pipControlType])
-//                    print("[JWPlayer] Attempted to set PiP button visible")
-//                } else {
-//                    print("[JWPlayer] JWControlType for PiP not found with rawValue 'pictureInPictureButton'")
-//                }
-            } catch {
-                 print("[JWPlayer] Error setting PiP button visibility: \(error.localizedDescription)")
-            }
-            
         } else {
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])
@@ -619,9 +642,11 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     
     // Action for the custom close button
     @objc private func closeButtonTapped() {
-        print("[JWPlayer] Custom close button tapped - dismissing player")
+        print("[JWPlayer] Custom close button tapped - dismissing player manually")
+        self.isDismissingForPiP = false // Mark as manual dismissal
         dismiss(animated: true) { [weak self] in
-             self?.callbackHandler?.onPlayerDismissed()
+             // Use the new callback signature
+             self?.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
     }
     
@@ -637,39 +662,64 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         button.alpha = targetAlpha
     }
     
-    // MARK: - AVPictureInPictureControllerDelegate Methods (Required Stubs)
-    // Implement required methods, even if empty, to satisfy the protocol.
+    // MARK: - AVPictureInPictureControllerDelegate Methods
     
     override func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print("[JWPlayer] PiP Will Start")
-        // Handle UI changes before PiP starts if needed
+        print("[JWPlayer] Delegate: PiP Will Start - Dismissing main player view controller")
+        self.isDismissingForPiP = true // Mark as PiP dismissal
+        // Dismiss the view controller, but the plugin keeps the strong reference
+        self.dismiss(animated: true)
+        // DO NOT call onPlayerDismissed here, plugin handles reference based on flag
     }
     
     override func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print("[JWPlayer] PiP Did Start")
-        // Handle UI changes after PiP starts if needed
+        print("[JWPlayer] Delegate: PiP Did Start")
+        // Main view should now be hidden
     }
     
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        print("[JWPlayer] PiP Failed to Start: \(error.localizedDescription)")
-        // Handle error
+        print("[JWPlayer] Delegate: PiP Failed to Start: \(error.localizedDescription)")
     }
     
     override func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print("[JWPlayer] PiP Will Stop")
-        // Handle UI changes before PiP stops if needed
+        print("[JWPlayer] Delegate: PiP Will Stop")
+        // View might be reshown in restoreUserInterface delegate method
     }
     
     override func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print("[JWPlayer] PiP Did Stop")
-        // Handle UI changes after PiP stops if needed
+        print("[JWPlayer] Delegate: PiP Did Stop")
+        // If PiP stops and the view wasn't restored (e.g., user closed PiP window directly),
+        // we might need to tell the plugin to clean up the orphaned reference.
+        // Check if the view controller is still attached to a window/presented.
+        // A simple check might be if isDismissingForPiP is still true (wasn't reset by manual close)
+        if self.isDismissingForPiP {
+             print("[JWPlayer] PiP stopped without restore, cleaning up plugin reference.")
+             // Treat this like a manual dismissal for cleanup purposes
+             self.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
+             self.isDismissingForPiP = false // Reset flag
+        }
     }
     
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        print("[JWPlayer] PiP Restore UI Requested")
-        // Restore the player UI. Call completionHandler(true) when done.
-        // Since our player is always presented modally, we might just dismiss it or handle it based on app flow.
-        // For now, we just complete the handler.
+        print("[JWPlayer] Delegate: PiP Restore UI Requested - Requesting re-presentation")
+        // Ask the plugin to re-present this view controller instance
+        callbackHandler?.rePresentPlayerRequested()
         completionHandler(true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        print("[JWPlayer] viewWillDisappear. isDismissingForPiP: \(isDismissingForPiP)")
+        super.viewWillDisappear(animated)
+        
+        // Only trigger the dismissal callback if it's a manual dismissal
+        if (self.isBeingDismissed || self.isMovingFromParent) && !self.isDismissingForPiP {
+            print("[JWPlayer] Manual dismissal detected in viewWillDisappear")
+            callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
+        }
+        // Reset flag after view disappears if it was for PiP
+        if isDismissingForPiP && !isBeingPresented {
+            // This might be too late if object is deallocated, better handle in DidStopPiP
+            // isDismissingForPiP = false
+        }
     }
 }
