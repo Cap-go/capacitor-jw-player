@@ -6,6 +6,7 @@
   <h2><a href="https://capgo.app/consulting/?ref=plugin"> Fix your annoying bug now, Hire a Capacitor expert 💪</a></h2>
 </div>
 
+WIP: do not use it yet
 Playes videos from jwplayer.com
 
 ## Install
