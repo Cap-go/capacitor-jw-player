@@ -129,6 +129,7 @@ class CustomPlayerViewController: JWPlayerViewController {
                 switch firstVideo {
                     case .playlist(_, _, let playlistURL):
                          config = try JWPlayerConfigurationBuilder()
+                            .playlist(url: playlistURL)
                             .build()
                         break
                     case .video(let url):
