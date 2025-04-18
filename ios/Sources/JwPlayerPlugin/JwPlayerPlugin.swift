@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import JWPlayerKit
+import AVKit // Import AVKit for AVAudioSession
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
@@ -42,6 +43,23 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
     private var viewController: CustomPlayerViewController? = nil
     
 
+    override public func load() {
+        // Configure the audio session when the plugin loads
+        setupAudioSession()
+    }
+
+    private func setupAudioSession() {
+        print("[JWPlayer] Setting up AVAudioSession")
+        do {
+            // Configure audio session for playback and PiP
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: [.allowAirPlay])
+            try AVAudioSession.sharedInstance().setActive(true)
+            print("[JWPlayer] AVAudioSession configured successfully for playback")
+        } catch {
+            print("[JWPlayer] Error setting up AVAudioSession: \(error.localizedDescription)")
+        }
+    }
+    
     @objc func initialize(_ call: CAPPluginCall) {
         print("[JWPlayer] initialize called")
         guard let licenseKey = call.getString("licenseKey") else {
@@ -455,7 +473,8 @@ extension JwPlayerPlugin: CallbackHandler {
     }
 }
 
-class CustomPlayerViewController: JWPlayerViewController {
+// Make CustomPlayerViewController conform to the correct delegate protocol
+class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewControllerFullScreenDelegate {
     
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
@@ -472,14 +491,29 @@ class CustomPlayerViewController: JWPlayerViewController {
         self.playerConfig = config
         self.callbackHandler = callbackHandler
         super.init(nibName: nil, bundle: nil)
+        
+        // Removed setting self.fullscreenDelegate = self as it seems unavailable
+        print("[JWPlayer] Conforming to JWPlayerViewControllerFullScreenDelegate")
+        
+        // Enable PiP
+        self.allowsPictureInPicturePlayback = true
+        print("[JWPlayer] allowsPictureInPicturePlayback set to true")
+        
         setupFullscreenConfig()
     }
     
     required init?(coder: NSCoder) {
         print("[JWPlayer] CustomPlayerViewController init from coder - Not recommended")
-        // This initializer might not have the config, handle appropriately
-        self.playerConfig = nil // Or attempt to load a default config
+        self.playerConfig = nil
         super.init(coder: coder)
+        
+        // Removed setting self.fullscreenDelegate = self
+        print("[JWPlayer] Conforming to JWPlayerViewControllerFullScreenDelegate (coder init)")
+        
+        // Enable PiP even if initialized from coder
+        self.allowsPictureInPicturePlayback = true
+        print("[JWPlayer] allowsPictureInPicturePlayback set to true (coder init)")
+        
         setupFullscreenConfig()
     }
     
@@ -519,10 +553,30 @@ class CustomPlayerViewController: JWPlayerViewController {
         print("[JWPlayer] Playback started")
     }
     
-    // This delegate method should handle the fullscreen button tap
+    // MARK: - JWPlayerViewControllerFullScreenDelegate Methods
+    
+    // This method is called when the fullscreen button is tapped
     func playerViewControllerWillGoFullScreen(_ controller: JWPlayerViewController) -> JWFullScreenViewController? {
         print("[JWPlayer] playerViewControllerWillGoFullScreen called - dismissing player")
         dismiss(animated: true)
         return nil // Prevent default fullscreen transition
+    }
+    
+    // Required methods from JWPlayerViewControllerFullScreenDelegate (can be empty if not needed)
+    func playerViewControllerDidGoFullScreen(_ controller: JWPlayerViewController) {
+        print("[JWPlayer] playerViewControllerDidGoFullScreen called (required stub)")
+        // No specific action needed here for our use case
+    }
+    
+    func playerViewControllerWillDismissFullScreen(_ controller: JWPlayerViewController) {
+        print("[JWPlayer] playerViewControllerWillDismissFullScreen called (required stub) - dismissing player anyway")
+        // We might want to ensure dismissal here too, just in case
+        dismiss(animated: true)
+    }
+    
+    func playerViewControllerDidDismissFullScreen(_ controller: JWPlayerViewController) {
+        print("[JWPlayer] playerViewControllerDidDismissFullScreen called (required stub)")
+        // The view controller is already dismissed, handle any cleanup if needed
+        // The onPlayerDismissed callback should handle the plugin state cleanup
     }
 }
