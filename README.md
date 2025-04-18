@@ -6,6 +6,8 @@
   <h2><a href="https://capgo.app/consulting/?ref=plugin"> Fix your annoying bug now, Hire a Capacitor expert 💪</a></h2>
 </div>
 
+WIP: do not use it yet it's in dev
+
 Play videos from jwplayer.com with a fullscreen player interface. The plugin provides a comprehensive API for controlling JW Player playback, playlists, and tracks.
 
 ## Key Features
@@ -16,6 +18,7 @@ Play videos from jwplayer.com with a fullscreen player interface. The plugin pro
 - Audio track selection
 - Caption/subtitle support
 - Event listeners for player state changes
+Playes videos from jwplayer.com
 
 ## Install
 
