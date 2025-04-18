@@ -79,4 +79,8 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
   async currentPlaylist(): Promise<any> {
     throw this.unimplemented('JW Player is not available in web.');
   }
+
+  async resume(): Promise<void> {
+    throw this.unimplemented('JW Player is not available in web.');
+  }
 }

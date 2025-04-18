@@ -39,7 +39,8 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getCurrentCaptions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setCurrentCaptions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setPlaylistIndex", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "currentPlaylist", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "currentPlaylist", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "resume", returnType: CAPPluginReturnPromise)
     ]
     private var viewController: CustomPlayerViewController? = nil
     
@@ -461,6 +462,22 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
             call.resolve([
                 "playlist": []
             ])
+        })
+    }
+    
+    @objc func resume(_ call: CAPPluginCall) {
+        print("[JWPlayer] resume called")
+        DispatchQueue.main.async(execute: DispatchWorkItem {
+            guard let viewController = self.viewController else {
+                print("[JWPlayer] Error: Cannot resume, no active player")
+                call.reject("No active player to resume")
+                return
+            }
+            
+            print("[JWPlayer] Resuming playback")
+            viewController.player.play()
+            call.resolve()
+            print("[JWPlayer] Play command sent to player")
         })
     }
 }

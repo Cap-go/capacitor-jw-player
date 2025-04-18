@@ -26,6 +26,12 @@ export interface JwPlayerPlugin {
   pause(): Promise<void>;
 
   /**
+   * Resume the currently paused media
+   * @returns A promise that resolves when the command is executed
+   */
+  resume(): Promise<void>;
+
+  /**
    * Stop the currently playing media
    * @returns A promise that resolves when the command is executed
    */

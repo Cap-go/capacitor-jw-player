@@ -161,11 +161,10 @@ async function pausePlayback() {
     }
 }
 
-// Resume playback
+// Resume playback - uses the new resume method
 async function resumePlayback() {
     try {
-        // For resuming, we don't need to provide a URL
-        await JwPlayer.play();
+        await JwPlayer.resume(); // Call the new resume method
         showResult('Playback Control', 'Playback resumed');
     } catch (error) {
         showResult('Error Resuming', error.message);
