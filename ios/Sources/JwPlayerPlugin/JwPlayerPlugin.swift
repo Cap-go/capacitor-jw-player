@@ -48,13 +48,14 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
     override public func load() {
         // Configure the audio session when the plugin loads
         setupAudioSession()
+        super.load()
     }
 
     private func setupAudioSession() {
         print("[JWPlayer] Setting up AVAudioSession")
         do {
             // Configure audio session for playback and PiP
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: [.allowAirPlay])
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: [])
             try AVAudioSession.sharedInstance().setActive(true)
             print("[JWPlayer] AVAudioSession configured successfully for playback")
         } catch {
@@ -536,6 +537,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             "newSize": ["width": newSize.width, "height": newSize.height]
         ]
         callbackHandler?.notifyEventListener("playerSizeChange", data: sizeData)
+        
     }
     
     func playerViewController(_ controller: JWPlayerKit.JWPlayerViewController, screenTappedAt position: CGPoint) {
@@ -548,7 +550,6 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
     private var closeButton: UIButton! // Custom close button
-    private var isDismissingForPiP: Bool = false // Flag for PiP dismissal
     
     // Standard init is unavailable
     @available(*, unavailable)
@@ -597,6 +598,8 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         
         // Configure the player view to fill the screen
         view.frame = UIScreen.main.bounds
+        self.forceFullScreenOnLandscape = false
+        self.forceLandscapeOnFullScreen = false
         print("[JWPlayer] Fullscreen config set")
     }
     
@@ -624,9 +627,10 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         super.viewDidAppear(animated)
         
         // Start playback automatically
-        print("[JWPlayer] Starting playback")
-        player.play()
-        print("[JWPlayer] Playback started")
+//        print("[JWPlayer] Starting playback")
+//        // player.play()
+//        print("[JWPlayer] Playback started")
+        print("[JWPlayer] Button exists \(view.viewWithTag(2136) !== nil)")
     }
     
     // Setup and add the custom close button
@@ -637,7 +641,8 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         closeButton.backgroundColor = UIColor(white: 0, alpha: 0.6)
         closeButton.layer.cornerRadius = 15 // Smaller corner radius
         closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .allTouchEvents)
+        closeButton.tag = 2136
         
         // Position the button in the top-left corner
         closeButton.translatesAutoresizingMaskIntoConstraints = false
@@ -655,13 +660,15 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         // Initially visible, will be updated by delegate method
         closeButton.alpha = 1.0
         print("[JWPlayer] Custom close button added")
+        
+        self.setVisibility(.hidden, for: [.fullscreenButton])
+        print("[JWPlayer] Fullscreen button hidden")
     }
     
     // Action for the custom close button
     @objc private func closeButtonTapped() {
         print("[JWPlayer] Custom close button tapped - dismissing player manually")
-        self.isDismissingForPiP = false // Mark as manual dismissal
-        dismiss(animated: true) { [weak self] in
+        self.dismiss(animated: true) { [weak self] in
              // Use the new callback signature
              self?.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
@@ -682,61 +689,61 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     // MARK: - AVPictureInPictureControllerDelegate Methods
     
     override func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        print("[JWPlayer] Delegate: PiP Will Start - Dismissing main player view controller")
-        self.isDismissingForPiP = true // Mark as PiP dismissal
-        // Dismiss the view controller, but the plugin keeps the strong reference
-        self.dismiss(animated: true)
-        // DO NOT call onPlayerDismissed here, plugin handles reference based on flag
+        print("[JWPlayer] Delegate: PiP Will Start")
+        if #available(iOS 14.2, *) {
+            pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline = true
+            print("[JWPlayer] Set canStartPictureInPictureAutomaticallyFromInline to true. It's current value:  \(pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline)")
+        }
+        super.pictureInPictureControllerWillStartPictureInPicture(pictureInPictureController)
     }
     
     override func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Start")
-        // Main view should now be hidden
+        super.pictureInPictureControllerDidStartPictureInPicture(pictureInPictureController)
     }
     
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
         print("[JWPlayer] Delegate: PiP Failed to Start: \(error.localizedDescription)")
+        super.pictureInPictureController(pictureInPictureController, failedToStartPictureInPictureWithError: error)
     }
     
     override func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Will Stop")
-        // View might be reshown in restoreUserInterface delegate method
+        super.pictureInPictureControllerWillStopPictureInPicture(pictureInPictureController)
     }
     
     override func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Stop")
-        // If PiP stops and the view wasn't restored (e.g., user closed PiP window directly),
-        // we might need to tell the plugin to clean up the orphaned reference.
-        // Check if the view controller is still attached to a window/presented.
-        // A simple check might be if isDismissingForPiP is still true (wasn't reset by manual close)
-        if self.isDismissingForPiP {
-             print("[JWPlayer] PiP stopped without restore, cleaning up plugin reference.")
-             // Treat this like a manual dismissal for cleanup purposes
-             self.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
-             self.isDismissingForPiP = false // Reset flag
-        }
+        super.pictureInPictureControllerDidStopPictureInPicture(pictureInPictureController)
+        
+        // If PiP is stopped directly by the user without restoration, notify the plugin
+        // print("[JWPlayer] PiP stopped, cleaning up plugin reference.")
+        // self.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
     }
     
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        print("[JWPlayer] Delegate: PiP Restore UI Requested - Requesting re-presentation")
+        // print("[JWPlayer] Delegate: PiP Restore UI Requested")
         // Ask the plugin to re-present this view controller instance
-        callbackHandler?.rePresentPlayerRequested()
-        completionHandler(true)
+        // callbackHandler?.rePresentPlayerRequested()
+        
+        // Here I will REMOVE the button to close and readd it
+        if let closeButton = self.closeButton {
+            closeButton.removeFromSuperview()
+            self.setupCloseButton()
+        }
+        
+        // MARK: - IMPORTANT-
+        // Make sure to call the super method when you have restored the UI, it is important to notify the system of this.
+        super.pictureInPictureController(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        print("[JWPlayer] viewWillDisappear. isDismissingForPiP: \(isDismissingForPiP)")
         super.viewWillDisappear(animated)
         
         // Only trigger the dismissal callback if it's a manual dismissal
-        if (self.isBeingDismissed || self.isMovingFromParent) && !self.isDismissingForPiP {
+        if (self.isBeingDismissed || self.isMovingFromParent) {
             print("[JWPlayer] Manual dismissal detected in viewWillDisappear")
             callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
-        }
-        // Reset flag after view disappears if it was for PiP
-        if isDismissingForPiP && !isBeingPresented {
-            // This might be too late if object is deallocated, better handle in DidStopPiP
-            // isDismissingForPiP = false
         }
     }
 }
