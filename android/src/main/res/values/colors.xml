@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF0000</color>
+    
+    <!-- JW Player requires these colors -->
+    <color name="jw_color_pressed">#33FFFFFF</color>
+    <color name="jw_color_focused">#33FFFFFF</color>
+    <color name="jw_color_selected">#FFFFFFFF</color>
+    <color name="jw_color_disabled">#80FFFFFF</color>
+    <color name="jw_color_primary">#FFFFFFFF</color>
+    <color name="jw_color_medium">#CCFFFFFF</color>
+    <color name="jw_color_inactive">#66FFFFFF</color>
+    <color name="jw_color_background">#CC000000</color>
+</resources> 

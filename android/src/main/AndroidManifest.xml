@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ee.forgr.capacitor_jw_player">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="ee.forgr.capacitor_jw_player"
+    tools:overrideLibrary="com.longtailvideo.jwplayer">
 
     <!-- Core Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,9 +17,12 @@
         <activity
             android:name=".PlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:theme="@style/Theme.AppCompat.NoActionBar" 
-            android:supportsPictureInPicture="true"/> 
-            <!-- Added NoActionBar theme for fullscreen and PiP support -->
+            android:theme="@style/JWPlayerTheme" 
+            android:supportsPictureInPicture="true"
+            android:autoRemoveFromRecents="false"
+            android:excludeFromRecents="false"
+            />
+            <!-- Changed from AppCompat.NoActionBar to JWPlayerTheme -->
 
         <!-- JW Player Media Service for background audio/notifications -->
         <service

@@ -1,5 +1,6 @@
 import { JwPlayer } from '@capgo/capacitor-jw-player';
 import { Capacitor } from '@capacitor/core';
+import { licenseKeyIos, licenseKeyAndroid } from './license';
 
 // For displaying results
 const showResult = (title, data) => {
@@ -16,11 +17,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const platform = Capacitor.getPlatform();
         if (platform === 'ios') {
             await JwPlayer.initialize({
-                licenseKey: 'w2xXw2vXW4z4Os0+QDom4xTYUL/KH3pQ2q9EvhacSbYLq8FV'
+                licenseKey: licenseKeyIos
             });
         } else {
             await JwPlayer.initialize({
-                licenseKey: 'YOUR_LICENSE_KEY_HERE'
+                licenseKey: licenseKeyAndroid
             });
         }
         
@@ -174,8 +175,10 @@ async function resumePlayback() {
 // Stop playback
 async function stopPlayback() {
     try {
-        await JwPlayer.stop();
-        showResult('Playback Control', 'Playback stopped');
+        playPlaylist('YJ684zZI');
+        setTimeout(() => {
+            JwPlayer.stop();
+        }, 5000);
     } catch (error) {
         showResult('Error Stopping', error.message);
     }
