@@ -176,6 +176,7 @@ function cleanup() {
 * [`initialize(...)`](#initialize)
 * [`play(...)`](#play)
 * [`pause()`](#pause)
+* [`resume()`](#resume)
 * [`stop()`](#stop)
 * [`seekTo(...)`](#seekto)
 * [`setVolume(...)`](#setvolume)
@@ -192,7 +193,6 @@ function cleanup() {
 * [`getCurrentCaptions()`](#getcurrentcaptions)
 * [`setCurrentCaptions(...)`](#setcurrentcaptions)
 * [`currentPlaylist()`](#currentplaylist)
-* [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -236,6 +236,17 @@ pause() => Promise<void>
 ```
 
 Pause the currently playing media
+
+--------------------
+
+
+### resume()
+
+```typescript
+resume() => Promise<void>
+```
+
+Resume the currently paused media
 
 --------------------
 
