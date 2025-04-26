@@ -2,7 +2,7 @@ import Foundation
 import Capacitor
 import JWPlayerKit
 import AVKit // Import AVKit for AVAudioSession
-
+import GoogleCast
 /**
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
@@ -612,7 +612,6 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Configuring player from init config")
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
-            
         } else {
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])

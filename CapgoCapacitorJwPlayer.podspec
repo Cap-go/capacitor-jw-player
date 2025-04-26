@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '14.0'
   s.dependency 'Capacitor'
   s.dependency 'JWPlayerKit'
-  s.dependency 'google-cast-sdk'
-  s.dependency 'Protobuf'
+  s.dependency 'google-cast-sdk', '>= 4.8.1'
+  s.dependency 'Protobuf', '>= 3.13'
   s.swift_version = '5.1'
 end
