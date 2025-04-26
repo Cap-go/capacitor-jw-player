@@ -1,14 +1,34 @@
 import UIKit
 import Capacitor
+import GoogleCast
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, GCKLoggerDelegate {
+    let kReceiverAppID = kGCKDefaultMediaReceiverApplicationID
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // Initialize the GCKCastContext instance.
+        let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kReceiverAppID)
+        let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
+        GCKCastContext.setSharedInstanceWith(options)
+        
+        let filter = GCKLoggerFilter.init()
+        filter.minimumLevel = .verbose
+        GCKLogger.sharedInstance().filter = filter
+        GCKLogger.sharedInstance().delegate = self
+        
         return true
+    }
+    
+    func logMessage(_ message: String,
+                    at level: GCKLoggerLevel,
+                    fromFunction function: String,
+                    location: String) {
+        print(function + " - " + message)
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

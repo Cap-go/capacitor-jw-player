@@ -6,6 +6,8 @@ def capacitor_pods
   pod 'Capacitor', :path => '../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../node_modules/@capacitor/ios'
   pod 'JWPlayerKit', '>= 4.0.0'
+  pod 'google-cast-sdk', '>= 4.8.1'
+  pod 'Protobuf', '>= 3.13'
 end
 
 target 'Plugin' do
