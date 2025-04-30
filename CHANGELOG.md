@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.2...0.0.3) (2025-04-30)
+
+
+### Features
+
+* chromecast iOS ([995672d](https://github.com/Cap-go/capacitor-jw-player/commit/995672d137d4f6ebd67fd3780a491ab7c9c18a04))
+* chromecast streaming for Android ([25b2330](https://github.com/Cap-go/capacitor-jw-player/commit/25b2330158b86452f2fc35898350cc82ea2bfaa1))
+
+
+### Bug Fixes
+
+* add new button to test same video as demo app ([0a10816](https://github.com/Cap-go/capacitor-jw-player/commit/0a108163856cf4e14f9e8d8628bc92e779153fb3))
+* add wifi ([39bfed9](https://github.com/Cap-go/capacitor-jw-player/commit/39bfed9c7c393289fbe3d102c184b9de9e75221b))
+* demo ([e88945c](https://github.com/Cap-go/capacitor-jw-player/commit/e88945c9f15b74065267a3a1c46ff71087f02ffd))
+* init chromecast in the plugin ([6863d16](https://github.com/Cap-go/capacitor-jw-player/commit/6863d163927a918211db29a51f9dc3ab20f2d119))
+
 ### 0.0.2 (2025-04-25)
 
 
