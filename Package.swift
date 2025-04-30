@@ -1,6 +1,11 @@
 // swift-tools-version: 5.9
 import PackageDescription
 
+struct GoogleCastMetadata {
+    static let version: String = "4.8.3"
+    static let checksum: String = "bc2c3c2434ef2895a0388ac3f16932242d3d3ac11805f810dbe7d7bce3bb27f6"
+}
+
 let package = Package(
     name: "CapgoCapacitorJwPlayer",
     platforms: [.iOS(.v14)],
@@ -10,8 +15,8 @@ let package = Package(
             targets: ["JwPlayerPlugin"])
     ],
     dependencies: [
-        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "7.0.0"),
-        .package(url: "https://github.com/jwplayer/JWPlayerKit-package.git", .upToNextMajor(from: "4.21.3"))
+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "7.2.0"),
+        .package(url: "https://github.com/jwplayer/JWPlayerKit-package.git", .upToNextMajor(from: "4.22.0"))
     ],
     targets: [
         .target(
@@ -19,14 +24,13 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                .product(name: "JWPlayerKit", package: "JWPlayerKit-package"),
-                .target(name: "GoogleCast")
+                .product(name: "JWPlayerKit", package: "JWPlayerKit-package")
             ],
             path: "ios/Sources/JwPlayerPlugin"),
         .binaryTarget(
             name: "GoogleCast",
-            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-4.8.1_dynamic.xcframework.zip",
-            checksum: "ab9dbab873fff677deb2cfd95ea60b9295ebd53b58ec8533e9e1110b2451e540"
+            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-\(GoogleCastMetadata.version)_dynamic.xcframework.zip",
+            checksum: GoogleCastMetadata.checksum
         ),
         .testTarget(
             name: "JwPlayerPluginTests",
