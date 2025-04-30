@@ -2,7 +2,7 @@ import Foundation
 import Capacitor
 import JWPlayerKit
 import AVKit // Import AVKit for AVAudioSession
-
+import GoogleCast
 /**
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
@@ -17,7 +17,7 @@ protocol CallbackHandler {
 
 
 @objc(JwPlayerPlugin)
-public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
+public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
     public let jsName = "JwPlayer"
     public let pluginMethods: [CAPPluginMethod] = [
@@ -48,6 +48,8 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
     override public func load() {
         // Configure the audio session when the plugin loads
         setupAudioSession()
+        print("[JWPlayer] Plugin loaded. Note: Chromecast is initialized in AppDelegate.")
+        initializeChromecast()
         super.load()
     }
 
@@ -61,6 +63,32 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
         } catch {
             print("[JWPlayer] Error setting up AVAudioSession: \(error.localizedDescription)")
         }
+    }
+    
+    private func initializeChromecast() {
+        print("[ChromecastDebug] Starting Chromecast initialization")
+        let kReceiverAppID = "CC1AD845" // Custom App ID for Chromecast
+        let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kReceiverAppID)
+        let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
+        options.physicalVolumeButtonsWillControlDeviceVolume = true
+        options.disableDiscoveryAutostart = false
+        print("[ChromecastDebug] Setting custom options for Chromecast")
+        do {
+            GCKCastContext.setSharedInstanceWith(options)
+            print("[ChromecastDebug] Chromecast context initialized with App ID: \(kReceiverAppID)")
+        } catch {
+            print("[ChromecastDebug] Error initializing Chromecast context: \(error.localizedDescription)")
+        }
+        
+        let filter = GCKLoggerFilter.init()
+        filter.minimumLevel = .verbose
+        GCKLogger.sharedInstance().filter = filter
+        GCKLogger.sharedInstance().delegate = self
+        print("[ChromecastDebug] Logger initialized")
+    }
+    
+    public func logMessage(_ message: String, at level: GCKLoggerLevel, fromFunction function: String, location: String) {
+        print(function + " - " + message)
     }
     
     @objc func initialize(_ call: CAPPluginCall) {
@@ -612,7 +640,6 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Configuring player from init config")
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
-            
         } else {
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])
@@ -746,4 +773,79 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
     }
+    
+    // MARK: - JWCastDelegate
+    // Optionally, override the following methods to receive and respond to events when casting.
+    // Always call the superclass's method when overriding these methods.
+    
+    
+    // Called when a new casting device comes online.
+    override func castController(_ controller: JWCastController, devicesAvailable devices: [JWCastingDevice]) {
+        super.castController(controller, devicesAvailable: devices)
+        print("[JWCastDelegate]: \(devices.count) became available: \(devices)")
+    }
+
+    // Called when a successful connection to a casting device is made.
+    override func castController(_ controller: JWCastController, connectedTo device: JWCastingDevice) {
+        super.castController(controller, connectedTo: device)
+        print("[JWCastDelegate]: Connected to device: \(device.identifier)")
+    }
+
+    
+    // Called when the casting device disconnects.
+    override func castController(_ controller: JWCastController, disconnectedWithError error: Error?) {
+        super.castController(controller, disconnectedWithError: error)
+        
+        if let error {
+            print("[JWCastDelegate]: Casting disconnected from device with error: \"\(error.localizedDescription)\"")
+        }
+        else {
+            print("[JWCastDelegate]: Casting disconnected from device successfully.")
+        }
+    }
+
+    
+    // Called when the connected casting device is temporarily disconnected. Video resumes on the mobile device until connection resumes.
+    override func castController(_ controller: JWCastController, connectionSuspendedWithDevice device: JWCastingDevice) {
+        super.castController(controller, connectionSuspendedWithDevice: device)
+        print("[JWCastDelegate]: Connection suspended with device: \(device.identifier)")
+    }
+
+    
+    // Called after connection is reestablished following a temporary disconnection. Video resumes on the casting device.
+    override func castController(_ controller: JWCastController, connectionRecoveredWithDevice device: JWCastingDevice) {
+        super.castController(controller, connectionRecoveredWithDevice: device)
+        print("[JWCastDelegate]: Connection recovered with device: \(device.identifier)")
+    }
+
+    // Called when an attempt to connect to a casting device is unsuccessful.
+    override func castController(_ controller: JWCastController, connectionFailedWithError error: Error) {
+        super.castController(controller, connectionFailedWithError: error)
+        print("[JWCastDelegate]: Connection failed with error: \(error.localizedDescription)")
+    }
+
+    // Called when casting session begins.
+    override func castController(_ controller: JWCastController, castingBeganWithDevice device: JWCastingDevice) {
+        super.castController(controller, castingBeganWithDevice: device)
+        print("[JWCastDelegate]: Casting began with device: \(device.identifier)")
+    }
+
+    // Called when an attempt to cast to a casting device is unsuccessful.
+    override func castController(_ controller: JWCastController, castingFailedWithError error: Error) {
+        super.castController(controller, castingFailedWithError: error)
+        print("[JWCastDelegate]: Casting failed with error: \(error.localizedDescription)")
+    }
+
+    // Called when a casting session ends.
+    override func castController(_ controller: JWCastController, castingEndedWithError error: Error?) {
+        super.castController(controller, castingEndedWithError: error)
+        
+        if let error {
+            print("[JWCastDelegate]: Casting ended with error: \"\(error.localizedDescription)\"")
+        }
+        else {
+            print("[JWCastDelegate]: Casting ended successfully.")
+        }
+    }
+
 }

@@ -44,6 +44,7 @@ function setupEventListeners() {
     document.getElementById('playVideo1')?.addEventListener('click', () => playVideo('7mjctscM'));
     document.getElementById('playVideo2')?.addEventListener('click', () => playVideo('eRJJMuHN'));
     document.getElementById('playVideo3')?.addEventListener('click', () => playVideo('GSOQLcQ0'));
+    document.getElementById('playDemoVideo')?.addEventListener('click', playDemoVideo);
     
     // Playlist buttons
     document.getElementById('playPlaylist1')?.addEventListener('click', () => playPlaylist('NHYc9BBh'));
@@ -149,6 +150,19 @@ async function playPlayer(playerId) {
         });
     } catch (error) {
         showResult('Error Playing Player', error.message);
+    }
+}
+
+// Play demo video
+async function playDemoVideo() {
+    try {
+        showResult('Playing Demo Video', 'Demo Video');
+        await JwPlayer.play({
+            mediaUrl: 'https://cdn.jwplayer.com/videos/CXz339Xh-sJF8m8CA.mp4',
+            mediaType: 'video'
+        });
+    } catch (error) {
+        showResult('Error Playing Demo Video', error.message);
     }
 }
 

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>example-app</string>
+	<string>JwPlayerDemoApp</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,7 +47,24 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app requires Bluetooth for casting with ChromeCast.</string>
+    <key>NSBonjourServices</key>
+    <array>
+      <string>_googlecast._tcp</string>
+      <string>_CC1AD845._googlecast._tcp</string>
+    </array>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>${PRODUCT_NAME} uses the local network to discover Cast-enabled devices on your WiFi
+    network.</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
 </dict>
 </plist>
