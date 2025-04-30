@@ -1,6 +1,7 @@
 package ee.forgr.capacitor_jw_player;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -18,6 +19,11 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.cast.LaunchOptions;
+import com.google.android.gms.cast.framework.CastOptions;
+import com.google.android.gms.cast.framework.OptionsProvider;
+import com.google.android.gms.cast.framework.SessionProvider;
 import com.jwplayer.pub.api.JWPlayer;
 import com.jwplayer.pub.api.PlayerState;
 import com.jwplayer.pub.api.UiGroup;
@@ -38,6 +44,7 @@ import com.jwplayer.ui.views.ControlbarView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class PlayerActivity extends AppCompatActivity implements
         VideoPlayerEvents.OnFullscreenListener,
@@ -88,6 +95,7 @@ public class PlayerActivity extends AppCompatActivity implements
         mPlayerView = findViewById(R.id.jwplayer);
         mPlayer = mPlayerView.getPlayer();
         mPlayer.registerActivityForPip(this, getSupportActionBar());
+
 
         // Delte fullscreen button
         ControlbarView customControlBar = mPlayerView.getControlsContainer().getControlbarView();
@@ -466,4 +474,4 @@ public class PlayerActivity extends AppCompatActivity implements
             }
         }
     }
-} 
+}

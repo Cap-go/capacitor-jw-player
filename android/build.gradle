@@ -62,6 +62,7 @@ dependencies {
     
     implementation "com.jwplayer:jwplayer-core:$jwPlayerVersion"
     implementation "com.jwplayer:jwplayer-common:$jwPlayerVersion"
+    implementation "com.jwplayer:jwplayer-chromecast:$jwPlayerVersion"
     
     implementation "androidx.media3:media3-common:$media3ExoVersion"
     implementation "androidx.media3:media3-exoplayer:$media3ExoVersion"
