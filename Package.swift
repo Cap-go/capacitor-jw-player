@@ -19,9 +19,15 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                .product(name: "JWPlayerKit", package: "JWPlayerKit-package")
+                .product(name: "JWPlayerKit", package: "JWPlayerKit-package"),
+                .target(name: "GoogleCast")
             ],
             path: "ios/Sources/JwPlayerPlugin"),
+        .binaryTarget(
+            name: "GoogleCast",
+            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-4.8.1_dynamic.xcframework.zip",
+            checksum: "ab9dbab873fff677deb2cfd95ea60b9295ebd53b58ec8533e9e1110b2451e540"
+        ),
         .testTarget(
             name: "JwPlayerPluginTests",
             dependencies: ["JwPlayerPlugin"],
