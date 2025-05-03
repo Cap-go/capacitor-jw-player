@@ -145,11 +145,13 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                         .build()
                     config = try JWPlayerConfigurationBuilder()
                         .playlist(items: [item])
+                        .autostart(true)
                         .build()
                 case "playlist":
                     print("[JWPlayer] Creating playlist configuration")
                     config = try JWPlayerConfigurationBuilder()
                         .playlist(url: mediaUrl)
+                        .autostart(true)
                         .build()
                 default:
                     print("[JWPlayer] Error: Invalid mediaType: \(mediaType)")
@@ -655,9 +657,9 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         super.viewDidAppear(animated)
         
         // Start playback automatically
-//        print("[JWPlayer] Starting playback")
-//        // player.play()
-//        print("[JWPlayer] Playback started")
+        // print("[JWPlayer] Starting playback")
+        // player.play()
+        // print("[JWPlayer] Playback started")
         print("[JWPlayer] Button exists \(view.viewWithTag(2136) !== nil)")
     }
     
