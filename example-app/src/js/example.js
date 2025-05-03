@@ -189,9 +189,13 @@ async function resumePlayback() {
 // Stop playback
 async function stopPlayback() {
     try {
+        console.log('Stopping playback');
         playPlaylist('YJ684zZI');
+        console.log('Playing playlist');
         setTimeout(() => {
+            console.log('Stopping playback');
             JwPlayer.stop();
+            console.log('Stopped playback');
         }, 5000);
     } catch (error) {
         showResult('Error Stopping', error.message);
