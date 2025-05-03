@@ -27,6 +27,21 @@ npm install @capgo/capacitor-jw-player
 npx cap sync
 ```
 
+## Android
+
+Edit `build.gradle` in order for the plugin to work:
+```gradle
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url 'https://mvn.jwplayer.com/content/repositories/releases/'
+        }
+    }
+}
+```
+
 ## Usage Examples
 
 ### Basic Setup and Playback
