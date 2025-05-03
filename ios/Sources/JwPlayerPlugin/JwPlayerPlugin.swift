@@ -177,11 +177,12 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             }
             
             let viewController = CustomPlayerViewController(config: finalConfig, callbackHandler: self)
-            viewController.modalPresentationStyle = .fullScreen
+            viewController.modalPresentationStyle = .overCurrentContext
+            viewController.modalTransitionStyle = .crossDissolve
             self.viewController = viewController // Keep strong reference
             print("[JWPlayer] Resolving play call")
             call.resolve()
-            print("[JWPlayer] Presenting view controller")
+            print("[JWPlayer] Presenting view controller over current context")
             self.bridge?.viewController?.present(viewController, animated: true)
             print("[JWPlayer] View controller presented")
         })
