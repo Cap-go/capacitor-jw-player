@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.10...0.0.11) (2025-05-05)
+
+
+### Features
+
+* autoplay option ([21486d9](https://github.com/Cap-go/capacitor-jw-player/commit/21486d9fdc3ff944e385c33f1ec2d4bd35bdaa49))
+
 ### [0.0.10](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.9...0.0.10) (2025-05-03)
 
 
