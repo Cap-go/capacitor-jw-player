@@ -22,7 +22,7 @@ public class MediaNode: Node<MediaNodeType> {
     public var nodeType: MediaNodeType {
         return value
     }
-    
+
     /// Whether this node is a playlist
     public var isPlaylist: Bool {
         switch value {
@@ -32,7 +32,7 @@ public class MediaNode: Node<MediaNodeType> {
             return false
         }
     }
-    
+
     /// Whether this node is a video
     public var isVideo: Bool {
         switch value {
@@ -42,15 +42,14 @@ public class MediaNode: Node<MediaNodeType> {
             return false
         }
     }
-    
+
     /// Create a new playlist node
     public static func createPlaylist(playlistUrl: URL) -> MediaNode {
         return MediaNode(value: .playlist(loadedUrls: [], isLoaded: false, playlistUrl: playlistUrl))
     }
-    
+
     /// Create a new video node
     public static func createVideo(url: URL) -> MediaNode {
         return MediaNode(value: .video(url: url))
     }
 }
-

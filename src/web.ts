@@ -8,7 +8,7 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
     return;
   }
 
-  async play(_options: { mediaUrl: string; mediaType: 'video' | 'playlist'; }): Promise<void> {
+  async play(_options: { mediaUrl: string; mediaType: 'video' | 'playlist' }): Promise<void> {
     throw this.unimplemented('JW Player is not available in web.');
   }
 

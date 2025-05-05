@@ -232,14 +232,14 @@ Initialize the JW Player
 ### play(...)
 
 ```typescript
-play(options: { mediaUrl: string; mediaType: 'video' | 'playlist'; }) => Promise<void>
+play(options: { mediaUrl: string; mediaType: 'video' | 'playlist'; autostart?: boolean; }) => Promise<void>
 ```
 
 Play a video
 
-| Param         | Type                                                                 | Description                     |
-| ------------- | -------------------------------------------------------------------- | ------------------------------- |
-| **`options`** | <code>{ mediaUrl: string; mediaType: 'video' \| 'playlist'; }</code> | - The options for the JW Player |
+| Param         | Type                                                                                      | Description                     |
+| ------------- | ----------------------------------------------------------------------------------------- | ------------------------------- |
+| **`options`** | <code>{ mediaUrl: string; mediaType: 'video' \| 'playlist'; autostart?: boolean; }</code> | - The options for the JW Player |
 
 --------------------
 

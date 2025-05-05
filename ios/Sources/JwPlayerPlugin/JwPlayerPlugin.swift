@@ -15,7 +15,6 @@ protocol CallbackHandler {
     func rePresentPlayerRequested() // Request plugin to re-present
 }
 
-
 @objc(JwPlayerPlugin)
 public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
@@ -42,8 +41,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
         CAPPluginMethod(name: "currentPlaylist", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "resume", returnType: CAPPluginReturnPromise)
     ]
-    private var viewController: CustomPlayerViewController? = nil
-    
+    private var viewController: CustomPlayerViewController?
 
     override public func load() {
         // Configure the audio session when the plugin loads
@@ -64,7 +62,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             print("[JWPlayer] Error setting up AVAudioSession: \(error.localizedDescription)")
         }
     }
-    
+
     private func initializeChromecast() {
         print("[ChromecastDebug] Starting Chromecast initialization")
         let kReceiverAppID = "CC1AD845" // Custom App ID for Chromecast
@@ -79,18 +77,18 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
         } catch {
             print("[ChromecastDebug] Error initializing Chromecast context: \(error.localizedDescription)")
         }
-        
+
         let filter = GCKLoggerFilter.init()
         filter.minimumLevel = .verbose
         GCKLogger.sharedInstance().filter = filter
         GCKLogger.sharedInstance().delegate = self
         print("[ChromecastDebug] Logger initialized")
     }
-    
+
     public func logMessage(_ message: String, at level: GCKLoggerLevel, fromFunction function: String, location: String) {
         print(function + " - " + message)
     }
-    
+
     @objc func initialize(_ call: CAPPluginCall) {
         print("[JWPlayer] initialize called")
         guard let licenseKey = call.getString("licenseKey") else {
@@ -98,14 +96,14 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             call.reject("licenseKey is required for initialize")
             return
         }
-        
+
         print("[JWPlayer] Setting license key")
         JWPlayerKitLicense.setLicenseKey(licenseKey)
         print("[JWPlayer] License key set successfully")
-        
+
         call.resolve()
     }
-    
+
     @objc func play(_ call: CAPPluginCall) {
         print("[JWPlayer] play called with options: \(call.options)")
         guard let mediaUrlStr = call.getString("mediaUrl") else {
@@ -113,29 +111,31 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             call.reject("mediaUrl is required for initialize")
             return
         }
-        
+
         guard let mediaUrl = URL(string: mediaUrlStr) else {
             print("[JWPlayer] Error: mediaUrl is invalid URL: \(mediaUrlStr)")
             call.reject("mediaUrl is invalid URL")
             return
         }
-        
+
         guard let mediaType = call.getString("mediaType") else {
             print("[JWPlayer] Error: mediaType is missing")
             call.reject("mediaType is required for initialize")
             return
         }
-        
+
+        let autostart = call.getBool("autostart") ?? false
+
         if self.viewController != nil {
             print("[JWPlayer] Error: player is already active")
             call.reject("the player is already active")
             return
         }
-        
+
         print("[JWPlayer] Media type: \(mediaType), URL: \(mediaUrl)")
-        
+
         // Create configuration directly
-        var config: JWPlayerConfiguration? = nil
+        var config: JWPlayerConfiguration?
         do {
             switch mediaType {
                 case "video":
@@ -145,13 +145,13 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                         .build()
                     config = try JWPlayerConfigurationBuilder()
                         .playlist(items: [item])
-                        .autostart(true)
+                        .autostart(autostart)
                         .build()
                 case "playlist":
                     print("[JWPlayer] Creating playlist configuration")
                     config = try JWPlayerConfigurationBuilder()
                         .playlist(url: mediaUrl)
-                        .autostart(true)
+                        .autostart(autostart)
                         .build()
                 default:
                     print("[JWPlayer] Error: Invalid mediaType: \(mediaType)")
@@ -163,13 +163,13 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             call.reject("Error creating player configuration: \(error.localizedDescription)")
             return
         }
-        
+
         guard let finalConfig = config else {
             print("[JWPlayer] Error: Configuration is nil after creation")
             call.reject("Failed to create player configuration")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             print("[JWPlayer] Creating player view controller with config")
             // Ensure any previous instance is fully dismissed first
@@ -177,7 +177,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                 print("[JWPlayer] Warning: Play called while a player VC might still exist. Forcing cleanup.")
                 self.viewController = nil
             }
-            
+
             let viewController = CustomPlayerViewController(config: finalConfig, callbackHandler: self)
             viewController.modalPresentationStyle = .overCurrentContext
             viewController.modalTransitionStyle = .crossDissolve
@@ -189,116 +189,116 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             print("[JWPlayer] View controller presented")
         })
     }
-    
+
     @objc func pause(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.pause()
             call.resolve()
         })
     }
-    
+
     @objc func stop(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.stop()
             call.resolve()
         })
     }
-    
+
     @objc func seekTo(_ call: CAPPluginCall) {
         guard let time = call.getDouble("time") else {
             call.reject("time parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.seek(to: TimeInterval(time))
             call.resolve()
         })
     }
-    
+
     @objc func setVolume(_ call: CAPPluginCall) {
         guard let volume = call.getDouble("volume") else {
             call.reject("volume parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.volume = volume
             call.resolve()
         })
     }
-    
+
     @objc func getPosition(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             call.resolve(["position": viewController.player.time.position])
         })
     }
-    
+
     @objc func getState(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             call.resolve(["state": viewController.player.getState().rawValue])
         })
     }
-    
+
     @objc func setSpeed(_ call: CAPPluginCall) {
         guard let speed = call.getDouble("speed") else {
             call.reject("speed parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.playbackRate = speed
             call.resolve()
         })
     }
-    
+
     @objc func setPlaylistIndex(_ call: CAPPluginCall) {
         guard let index = call.getInt("index") else {
             call.reject("index parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             // Use the loadPlayerItemAt method which should be available
             do {
                 viewController.player.loadPlayerItemAt(index: index)
@@ -308,43 +308,43 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             }
         })
     }
-    
+
     @objc func loadPlaylist(_ call: CAPPluginCall) {
         guard let playlistUrlStr = call.getString("playlistUrl") else {
             call.reject("playlistUrl parameter is required")
             return
         }
-        
+
         guard let playlistUrl = URL(string: playlistUrlStr) else {
             call.reject("playlistUrl is invalid URL")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.loadPlaylist(url: playlistUrl)
             call.resolve()
         })
     }
-    
+
     @objc func loadPlaylistWithItems(_ call: CAPPluginCall) {
         guard let playlist = call.getArray("playlist", [String: Any].self) else {
             call.reject("playlist parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             var items: [JWPlayerItem] = []
-            
+
             for item in playlist {
                 if let fileStr = item["file"] as? String, let url = URL(string: fileStr) {
                     do {
@@ -358,7 +358,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                     }
                 }
             }
-            
+
             if !items.isEmpty {
                 viewController.player.loadPlaylist(items: items)
                 call.resolve()
@@ -367,16 +367,16 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             }
         })
     }
-    
+
     @objc func getAudioTracks(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             let audioTracks = viewController.player.audioTracks
-            
+
             if audioTracks != nil && audioTracks.count > 0 {
                 var results: [[String: Any]] = []
                 for track in audioTracks {
@@ -393,46 +393,46 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             }
         })
     }
-    
+
     @objc func getCurrentAudioTrack(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             call.resolve(["index": viewController.player.currentAudioTrack])
         })
     }
-    
+
     @objc func setCurrentAudioTrack(_ call: CAPPluginCall) {
         guard let index = call.getInt("index") else {
             call.reject("index parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             viewController.player.currentAudioTrack = index
             call.resolve()
         })
     }
-    
+
     @objc func getCaptions(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             // JWPlayer iOS SDK doesn't have a direct way to get all caption tracks
             // But we can use the advanced settings to access them
             let captionsTrackId = viewController.player.currentCaptionsTrack
-            
+
             // Create a basic response with just the current caption track
             let captionsArray: [[String: Any]] = [
                 // Caption track 0 is usually "Off"
@@ -446,34 +446,34 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                 }
                 return false
             }
-            
+
             call.resolve(["captions": captionsArray])
         })
     }
-    
+
     @objc func getCurrentCaptions(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             call.resolve(["index": viewController.player.currentCaptionsTrack])
         })
     }
-    
+
     @objc func setCurrentCaptions(_ call: CAPPluginCall) {
         guard let index = call.getInt("index") else {
             call.reject("index parameter is required")
             return
         }
-        
+
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             do {
                 try viewController.player.setCaptionTrack(index: index)
                 call.resolve()
@@ -482,21 +482,21 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
             }
         })
     }
-    
+
     @objc func currentPlaylist(_ call: CAPPluginCall) {
         DispatchQueue.main.async(execute: DispatchWorkItem {
             guard let viewController = self.viewController else {
                 call.reject("No active player")
                 return
             }
-            
+
             // Just return an empty array since we can't safely access playlist information
             call.resolve([
                 "playlist": []
             ])
         })
     }
-    
+
     @objc func resume(_ call: CAPPluginCall) {
         print("[JWPlayer] resume called")
         DispatchQueue.main.async(execute: DispatchWorkItem {
@@ -505,7 +505,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
                 call.reject("No active player to resume")
                 return
             }
-            
+
             print("[JWPlayer] Resuming playback")
             viewController.player.play()
             call.resolve()
@@ -520,7 +520,7 @@ extension JwPlayerPlugin: CallbackHandler {
         print("[JWPlayer] Event: \(eventName), Data: \(String(describing: data))")
         notifyListeners(eventName, data: data)
     }
-    
+
     func onPlayerDismissed(isPiPDismissal: Bool) {
         print("[JWPlayer] Player dismissed callback. Was PiP dismissal: \(isPiPDismissal)")
         // Only nil out the reference if it wasn't a dismissal for starting PiP
@@ -534,7 +534,7 @@ extension JwPlayerPlugin: CallbackHandler {
              self.notifyListeners("pipStarted", data: nil)
         }
     }
-    
+
     func rePresentPlayerRequested() {
         print("[JWPlayer] Re-present player requested")
         guard let vc = self.viewController else {
@@ -545,13 +545,13 @@ extension JwPlayerPlugin: CallbackHandler {
             print("[JWPlayer] Error: Cannot re-present, bridge view controller is nil.")
             return
         }
-        
+
         // Ensure it's not already being presented or presenting something else
         if vc.isBeingPresented || vc.presentingViewController != nil || bridgeVC.presentedViewController != nil {
              print("[JWPlayer] Warning: Cannot re-present, presentation context busy.")
              return
          }
-        
+
         DispatchQueue.main.async {
             print("[JWPlayer] Re-presenting player view controller")
             bridgeVC.present(vc, animated: true)
@@ -568,76 +568,75 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             "newSize": ["width": newSize.width, "height": newSize.height]
         ]
         callbackHandler?.notifyEventListener("playerSizeChange", data: sizeData)
-        
+
     }
-    
+
     func playerViewController(_ controller: JWPlayerKit.JWPlayerViewController, screenTappedAt position: CGPoint) {
         print("[JWPlayer] Screen tapped at: \(position)")
         let positionData: [String: Any] = ["x": position.x, "y": position.y]
         callbackHandler?.notifyEventListener("screenTapped", data: positionData)
     }
-    
-    
+
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
     private var closeButton: UIButton! // Custom close button
-    
+
     // Standard init is unavailable
     @available(*, unavailable)
     init() {
         fatalError("init() is unavailable, use init(config:callbackHandler:)")
     }
-    
+
     // Designated initializer
     init(config: JWPlayerConfiguration, callbackHandler: CallbackHandler? = nil) {
         print("[JWPlayer] CustomPlayerViewController init with config")
         self.playerConfig = config
         self.callbackHandler = callbackHandler
         super.init(nibName: nil, bundle: nil)
-        
+
         // Set UI delegate
         self.uiDelegate = self
         print("[JWPlayer] Set self as JWPlayerViewControllerUIDelegate")
-        
+
         // Enable PiP
         self.allowsPictureInPicturePlayback = true
         print("[JWPlayer] allowsPictureInPicturePlayback set to true")
-        
+
         setupFullscreenConfig()
     }
-    
+
     required init?(coder: NSCoder) {
         print("[JWPlayer] CustomPlayerViewController init from coder - Not recommended")
         self.playerConfig = nil
         super.init(coder: coder)
-        
+
         // Set UI delegate
         self.uiDelegate = self
         print("[JWPlayer] Set self as JWPlayerViewControllerUIDelegate (coder init)")
-        
+
         // Enable PiP even if initialized from coder
         self.allowsPictureInPicturePlayback = true
         print("[JWPlayer] allowsPictureInPicturePlayback set to true (coder init)")
-        
+
         setupFullscreenConfig()
     }
-    
+
     private func setupFullscreenConfig() {
         print("[JWPlayer] Setting up fullscreen config")
         // Ensure player is always fullscreen
         modalPresentationStyle = .fullScreen
-        
+
         // Configure the player view to fill the screen
         view.frame = UIScreen.main.bounds
         self.forceFullScreenOnLandscape = false
         self.forceLandscapeOnFullScreen = false
         print("[JWPlayer] Fullscreen config set")
     }
-    
+
     override func viewDidLoad() {
         print("[JWPlayer] viewDidLoad")
         super.viewDidLoad()
-        
+
         // Apply the configuration passed during initialization
         if let config = self.playerConfig {
             print("[JWPlayer] Configuring player from init config")
@@ -647,22 +646,22 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])
         }
-        
+
         // Add the custom close button
         setupCloseButton()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         print("[JWPlayer] viewDidAppear")
         super.viewDidAppear(animated)
-        
+
         // Start playback automatically
         // print("[JWPlayer] Starting playback")
         // player.play()
         // print("[JWPlayer] Playback started")
         print("[JWPlayer] Button exists \(view.viewWithTag(2136) !== nil)")
     }
-    
+
     // Setup and add the custom close button
     private func setupCloseButton() {
         closeButton = UIButton(type: .custom)
@@ -673,28 +672,28 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
         closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .allTouchEvents)
         closeButton.tag = 2136
-        
+
         // Position the button in the top-left corner
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(closeButton)
-        
+
         NSLayoutConstraint.activate([
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             closeButton.widthAnchor.constraint(equalToConstant: 30),
             closeButton.heightAnchor.constraint(equalToConstant: 30)
         ])
-        
+
         // Make sure it's always on top
         closeButton.layer.zPosition = 1000
         // Initially visible, will be updated by delegate method
         closeButton.alpha = 1.0
         print("[JWPlayer] Custom close button added")
-        
+
         self.setVisibility(.hidden, for: [.fullscreenButton])
         print("[JWPlayer] Fullscreen button hidden")
     }
-    
+
     // Action for the custom close button
     @objc private func closeButtonTapped() {
         print("[JWPlayer] Custom close button tapped - dismissing player manually")
@@ -703,21 +702,21 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
              self?.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
     }
-    
+
     // MARK: - JWPlayerViewControllerUIDelegate Method
-    
+
     func playerViewController(_ controller: JWPlayerViewController, controlBarVisibilityChanged isVisible: Bool, frame: CGRect) {
         print("[JWPlayer] Control bar visibility changed: \(isVisible)")
         let targetAlpha: CGFloat = isVisible ? 1.0 : 0.0
-        
+
         // Set alpha directly without animation
         // Ensure closeButton is not nil before accessing
         guard let button = self.closeButton else { return }
         button.alpha = targetAlpha
     }
-    
+
     // MARK: - AVPictureInPictureControllerDelegate Methods
-    
+
     override func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Will Start")
         if #available(iOS 14.2, *) {
@@ -726,62 +725,61 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         }
         super.pictureInPictureControllerWillStartPictureInPicture(pictureInPictureController)
     }
-    
+
     override func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Start")
         super.pictureInPictureControllerDidStartPictureInPicture(pictureInPictureController)
     }
-    
+
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
         print("[JWPlayer] Delegate: PiP Failed to Start: \(error.localizedDescription)")
         super.pictureInPictureController(pictureInPictureController, failedToStartPictureInPictureWithError: error)
     }
-    
+
     override func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Will Stop")
         super.pictureInPictureControllerWillStopPictureInPicture(pictureInPictureController)
     }
-    
+
     override func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Stop")
         super.pictureInPictureControllerDidStopPictureInPicture(pictureInPictureController)
-        
+
         // If PiP is stopped directly by the user without restoration, notify the plugin
         // print("[JWPlayer] PiP stopped, cleaning up plugin reference.")
         // self.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
     }
-    
+
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         // print("[JWPlayer] Delegate: PiP Restore UI Requested")
         // Ask the plugin to re-present this view controller instance
         // callbackHandler?.rePresentPlayerRequested()
-        
+
         // Here I will REMOVE the button to close and readd it
         if let closeButton = self.closeButton {
             closeButton.removeFromSuperview()
             self.setupCloseButton()
         }
-        
+
         // MARK: - IMPORTANT-
         // Make sure to call the super method when you have restored the UI, it is important to notify the system of this.
         super.pictureInPictureController(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+
         // Only trigger the dismissal callback if it's a manual dismissal
-        if (self.isBeingDismissed || self.isMovingFromParent) {
+        if self.isBeingDismissed || self.isMovingFromParent {
             print("[JWPlayer] Manual dismissal detected in viewWillDisappear")
             callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
     }
-    
+
     // MARK: - JWCastDelegate
     // Optionally, override the following methods to receive and respond to events when casting.
     // Always call the superclass's method when overriding these methods.
-    
-    
+
     // Called when a new casting device comes online.
     override func castController(_ controller: JWCastController, devicesAvailable devices: [JWCastingDevice]) {
         super.castController(controller, devicesAvailable: devices)
@@ -794,27 +792,23 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         print("[JWCastDelegate]: Connected to device: \(device.identifier)")
     }
 
-    
     // Called when the casting device disconnects.
     override func castController(_ controller: JWCastController, disconnectedWithError error: Error?) {
         super.castController(controller, disconnectedWithError: error)
-        
+
         if let error {
             print("[JWCastDelegate]: Casting disconnected from device with error: \"\(error.localizedDescription)\"")
-        }
-        else {
+        } else {
             print("[JWCastDelegate]: Casting disconnected from device successfully.")
         }
     }
 
-    
     // Called when the connected casting device is temporarily disconnected. Video resumes on the mobile device until connection resumes.
     override func castController(_ controller: JWCastController, connectionSuspendedWithDevice device: JWCastingDevice) {
         super.castController(controller, connectionSuspendedWithDevice: device)
         print("[JWCastDelegate]: Connection suspended with device: \(device.identifier)")
     }
 
-    
     // Called after connection is reestablished following a temporary disconnection. Video resumes on the casting device.
     override func castController(_ controller: JWCastController, connectionRecoveredWithDevice device: JWCastingDevice) {
         super.castController(controller, connectionRecoveredWithDevice: device)
@@ -842,11 +836,10 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     // Called when a casting session ends.
     override func castController(_ controller: JWCastController, castingEndedWithError error: Error?) {
         super.castController(controller, castingEndedWithError: error)
-        
+
         if let error {
             print("[JWCastDelegate]: Casting ended with error: \"\(error.localizedDescription)\"")
-        }
-        else {
+        } else {
             print("[JWCastDelegate]: Casting ended successfully.")
         }
     }

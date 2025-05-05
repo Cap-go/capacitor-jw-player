@@ -46,6 +46,11 @@ function setupEventListeners() {
     document.getElementById('playVideo3')?.addEventListener('click', () => playVideo('GSOQLcQ0'));
     document.getElementById('playDemoVideo')?.addEventListener('click', playDemoVideo);
     
+    // Video autostart buttons
+    document.getElementById('playVideoAutostart1')?.addEventListener('click', () => playVideoAutostart('7mjctscM'));
+    document.getElementById('playVideoAutostart2')?.addEventListener('click', () => playVideoAutostart('eRJJMuHN'));
+    document.getElementById('playVideoAutostart3')?.addEventListener('click', () => playVideoAutostart('GSOQLcQ0'));
+
     // Playlist buttons
     document.getElementById('playPlaylist1')?.addEventListener('click', () => playPlaylist('NHYc9BBh'));
     document.getElementById('playPlaylist2')?.addEventListener('click', () => playPlaylist('YJ684zZI'));
@@ -121,6 +126,19 @@ async function playVideo(mediaId) {
         await JwPlayer.play({
             mediaUrl: `https://cdn.jwplayer.com/manifests/${mediaId}.m3u8`,
             mediaType: 'video'
+        });
+    } catch (error) {
+        showResult('Error Playing Video', error.message);
+    }
+}
+
+async function playVideoAutostart(mediaId) {
+    try {
+        showResult('Playing Video', `Media ID: ${mediaId}`);
+        await JwPlayer.play({
+            mediaUrl: `https://cdn.jwplayer.com/manifests/${mediaId}.m3u8`,
+            mediaType: 'video',
+            autostart: true
         });
     } catch (error) {
         showResult('Error Playing Video', error.message);

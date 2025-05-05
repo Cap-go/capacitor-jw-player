@@ -6,18 +6,16 @@ export interface JwPlayerPlugin {
    * @returns A promise that resolves when initialized
    */
   initialize(options: { licenseKey: string }): Promise<void>;
-  
+
   /**
    * Play a video
    * @param options - The options for the JW Player
    * @param options.mediaUrl - The URL of the media to play
    * @param options.mediaType - The type of media to play
+   * @param options.autostart - Whether to start the media automatically. Default is false.
    * @returns A promise that resolves when the command is executed
    */
-  play(options: { 
-    mediaUrl: string 
-    mediaType: 'video' | 'playlist'
-  }): Promise<void>;
+  play(options: { mediaUrl: string; mediaType: 'video' | 'playlist'; autostart?: boolean }): Promise<void>;
 
   /**
    * Pause the currently playing media
@@ -102,7 +100,7 @@ export interface JwPlayerPlugin {
    * @returns A promise that resolves with available audio tracks
    */
   getAudioTracks(): Promise<{ tracks: any[] }>;
-  
+
   /**
    * Get the current audio track
    * @returns A promise that resolves with current audio track index

@@ -16,9 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.LaunchOptions;
 import com.google.android.gms.cast.framework.CastOptions;
@@ -31,8 +29,8 @@ import com.jwplayer.pub.api.configuration.PlayerConfig;
 // import com.jwplayer.pub.api.configuration.PlaylistConfig; // Already commented/removed - ensure it's gone
 import com.jwplayer.pub.api.configuration.UiConfig;
 import com.jwplayer.pub.api.events.*;
-import com.jwplayer.pub.api.events.listeners.VideoPlayerEvents;
 import com.jwplayer.pub.api.events.listeners.AdvertisingEvents;
+import com.jwplayer.pub.api.events.listeners.VideoPlayerEvents;
 import com.jwplayer.pub.api.license.LicenseUtil;
 import com.jwplayer.pub.api.media.captions.Caption;
 import com.jwplayer.pub.api.media.captions.CaptionType;
@@ -41,12 +39,13 @@ import com.jwplayer.pub.api.media.playlists.PlaylistItem;
 import com.jwplayer.pub.ui.viewmodels.ControlbarViewModel;
 import com.jwplayer.pub.view.JWPlayerView;
 import com.jwplayer.ui.views.ControlbarView;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class PlayerActivity extends AppCompatActivity implements
+public class PlayerActivity
+    extends AppCompatActivity
+    implements
         VideoPlayerEvents.OnFullscreenListener,
         VideoPlayerEvents.OnReadyListener,
         VideoPlayerEvents.OnErrorListener,
@@ -61,12 +60,12 @@ public class PlayerActivity extends AppCompatActivity implements
         VideoPlayerEvents.OnTimeListener,
         AdvertisingEvents.OnAdErrorListener,
         AdvertisingEvents.OnAdWarningListener,
-        VideoPlayerEvents.OnMetaListener
-{
+        VideoPlayerEvents.OnMetaListener {
 
     private static final String TAG = "PlayerActivity";
     public static final String EXTRA_MEDIA_URL = "mediaUrl";
     public static final String EXTRA_MEDIA_TYPE = "mediaType";
+    public static final String AUTOSTART = "autostartMedia";
 
     private JWPlayerView mPlayerView;
     private JWPlayer mPlayer;
@@ -81,14 +80,13 @@ public class PlayerActivity extends AppCompatActivity implements
 
         // Make activity fullscreen - moved after setContentView
         if (getWindow() != null) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             // Keep the screen on during playback
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             Log.e(TAG, "Window is null in onCreate!");
         }
-        
+
         // Hide navigation bar and enable immersive mode
         hideSystemUI();
 
@@ -96,35 +94,32 @@ public class PlayerActivity extends AppCompatActivity implements
         mPlayer = mPlayerView.getPlayer();
         mPlayer.registerActivityForPip(this, getSupportActionBar());
 
-
         // Delte fullscreen button
         ControlbarView customControlBar = mPlayerView.getControlsContainer().getControlbarView();
         ImageView enterFullScreenButton = customControlBar.findViewById(com.longtailvideo.jwplayer.R.id.controlbar_enter_fullscreen_btn);
         ImageView exitFullScreenButton = customControlBar.findViewById(com.longtailvideo.jwplayer.R.id.controlbar_exit_fullscreen_btn);
         if (enterFullScreenButton != null && enterFullScreenButton.getParent() != null) {
-            ((ViewGroup)enterFullScreenButton.getParent()).removeView(enterFullScreenButton);
+            ((ViewGroup) enterFullScreenButton.getParent()).removeView(enterFullScreenButton);
         }
         if (exitFullScreenButton != null && exitFullScreenButton.getParent() != null) {
-            ((ViewGroup)exitFullScreenButton.getParent()).removeView(exitFullScreenButton);
+            ((ViewGroup) exitFullScreenButton.getParent()).removeView(exitFullScreenButton);
         }
 
         // Setup Close Button
         mCloseButton = findViewById(R.id.close_button);
         mCloseButton.setOnClickListener(v -> finish());
 
-        ControlbarViewModel controlbarViewModel =
-                (ControlbarViewModel) mPlayer.getViewModelForUiGroup(UiGroup.CONTROLBAR);
+        ControlbarViewModel controlbarViewModel = (ControlbarViewModel) mPlayer.getViewModelForUiGroup(UiGroup.CONTROLBAR);
 
-        controlbarViewModel.isUiLayerVisible().observe(
-                this,
-                isVisible -> {
-                    if (isInPictureInPictureMode()) {
-                        mCloseButton.setVisibility(View.GONE);
-                        return;
-                    }
-                    mCloseButton.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+        controlbarViewModel
+            .isUiLayerVisible()
+            .observe(this, isVisible -> {
+                if (isInPictureInPictureMode()) {
+                    mCloseButton.setVisibility(View.GONE);
+                    return;
                 }
-        );
+                mCloseButton.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+            });
 
         // Set the static instance reference in the plugin
         JwPlayerPlugin.setStaticPlayerInstance(mPlayer);
@@ -141,10 +136,11 @@ public class PlayerActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         String mediaUrl = intent.getStringExtra(EXTRA_MEDIA_URL);
         String mediaType = intent.getStringExtra(EXTRA_MEDIA_TYPE);
+        boolean autostart = intent.getBooleanExtra(AUTOSTART, false);
 
         if (mediaUrl != null && mediaType != null) {
             Log.d(TAG, "Received Media URL: " + mediaUrl + ", Type: " + mediaType);
-            loadMedia(mediaUrl, mediaType);
+            loadMedia(mediaUrl, mediaType, autostart);
         } else {
             Log.e(TAG, "Error: Media URL or Type not provided in Intent.");
             // Notify plugin of error?
@@ -152,20 +148,17 @@ public class PlayerActivity extends AppCompatActivity implements
         }
     }
 
-    private void loadMedia(String mediaUrl, String mediaType) {
+    private void loadMedia(String mediaUrl, String mediaType, boolean autostart) {
         PlaylistItem playlistItem = new PlaylistItem.Builder()
-                .file(mediaUrl)
-                // .title("Video Title") // Optional
-                // .description("Video Description") // Optional
-                .build();
+            .file(mediaUrl)
+            // .title("Video Title") // Optional
+            // .description("Video Description") // Optional
+            .build();
 
         List<PlaylistItem> playlist = new ArrayList<>();
         playlist.add(playlistItem);
 
-        PlayerConfig config = new PlayerConfig.Builder()
-                .playlist(playlist)
-                .autostart(true)
-                .build();
+        PlayerConfig config = new PlayerConfig.Builder().playlist(playlist).autostart(autostart).build();
 
         mPlayer.setup(config);
         Log.d(TAG, "Player setup initiated.");
@@ -203,7 +196,7 @@ public class PlayerActivity extends AppCompatActivity implements
         super.onPause();
         Log.d(TAG, "onPause");
         if (mPlayer != null && !isInPictureInPictureMode()) { // Don't pause if entering PiP
-             // mPlayer.pause();
+            // mPlayer.pause();
         }
     }
 
@@ -252,11 +245,13 @@ public class PlayerActivity extends AppCompatActivity implements
     public void onUserLeaveHint() {
         // Enter PiP if supported when user navigates away (e.g., home button)
         super.onUserLeaveHint();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-            getPackageManager().hasSystemFeature(getPackageManager().FEATURE_PICTURE_IN_PICTURE)) {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            getPackageManager().hasSystemFeature(getPackageManager().FEATURE_PICTURE_IN_PICTURE)
+        ) {
             if (mPlayer != null && mPlayer.getState() == PlayerState.PLAYING) {
-                 Log.d(TAG, "User leaving hint, entering PiP mode.");
-                 // enterPictureInPictureMode();
+                Log.d(TAG, "User leaving hint, entering PiP mode.");
+                // enterPictureInPictureMode();
             }
         }
     }
@@ -276,7 +271,6 @@ public class PlayerActivity extends AppCompatActivity implements
             // PiP is active, hide controls like the close button
             mCloseButton.setVisibility(View.GONE);
         } else {
-            
             // PiP is inactive, restore UI
             mCloseButton.setVisibility(View.VISIBLE);
             if (getWindow() != null) {
@@ -327,7 +321,7 @@ public class PlayerActivity extends AppCompatActivity implements
         JwPlayerPlugin.notifyPlaylistComplete();
         finish(); // Close activity when playlist finishes
     }
-    
+
     public void onPause(PauseEvent pauseEvent) {
         Log.d(TAG, "onPause event: state=" + pauseEvent.getOldState());
         JwPlayerPlugin.notifyPause(pauseEvent.getPauseReason().name());
@@ -345,15 +339,15 @@ public class PlayerActivity extends AppCompatActivity implements
         float aspectRatio = (float) metadata.getWidth() / metadata.getHeight();
         int width = metadata.getWidth();
         int height = metadata.getHeight();
-        
+
         if (aspectRatio > 2.38f) {
             // Too wide, adjust width, let's not handle it
             return;
-        } else if (aspectRatio < 1/2.38f) {
+        } else if (aspectRatio < 1 / 2.38f) {
             // Too tall, adjust height, let's not handle it for now
             return;
         }
-        
+
         Rational rational = new Rational(width, height);
         // Get the display metrics for the current screen
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -361,13 +355,13 @@ public class PlayerActivity extends AppCompatActivity implements
         int screenWidth = displayMetrics.widthPixels;
 
         // Calculate one-third of screen width and round to nearest even number
-        int thirdWidth = (int) Math.round((double)screenWidth / 3.0);
+        int thirdWidth = (int) Math.round((double) screenWidth / 3.0);
         if (thirdWidth % 2 != 0) {
             // If odd, round up to next even number
             thirdWidth += 1;
         }
 
-        int thirdHeight = (int) Math.round(((double)screenWidth / 3.0) * aspectRatio);
+        int thirdHeight = (int) Math.round(((double) screenWidth / 3.0) * aspectRatio);
         if (thirdHeight % 2 != 0) {
             // If odd, round up to next even number
             thirdHeight += 1;
@@ -383,17 +377,17 @@ public class PlayerActivity extends AppCompatActivity implements
         Log.d(TAG, "onComplete event");
         JwPlayerPlugin.notifyComplete();
     }
-    
+
     public void onSeek(SeekEvent seekEvent) {
-         Log.d(TAG, "onSeek event: position=" + seekEvent.getPosition() + ", offset=" + seekEvent.getOffset());
-         JwPlayerPlugin.notifySeek(seekEvent.getPosition(), seekEvent.getOffset());
+        Log.d(TAG, "onSeek event: position=" + seekEvent.getPosition() + ", offset=" + seekEvent.getOffset());
+        JwPlayerPlugin.notifySeek(seekEvent.getPosition(), seekEvent.getOffset());
     }
 
     public void onSeeked(SeekedEvent seekedEvent) {
-         Log.d(TAG, "onSeeked event");
-         JwPlayerPlugin.notifySeeked();
+        Log.d(TAG, "onSeeked event");
+        JwPlayerPlugin.notifySeeked();
     }
-    
+
     public void onTime(TimeEvent timeEvent) {
         // Log.v(TAG, "onTime event: position=" + timeEvent.getPosition() + ", duration=" + timeEvent.getDuration());
         JwPlayerPlugin.notifyTime(timeEvent.getPosition(), timeEvent.getDuration());
@@ -406,28 +400,26 @@ public class PlayerActivity extends AppCompatActivity implements
             Log.e(TAG, "Window is null in hideSystemUI!");
             return;
         }
-        
+
         // For AppCompatActivity, use the support library methods
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(false);
             android.view.WindowInsetsController insetsController = getWindow().getInsetsController();
             if (insetsController != null) {
-                insetsController.hide(
-                        android.view.WindowInsets.Type.statusBars() |
-                                android.view.WindowInsets.Type.navigationBars());
-                insetsController.setSystemBarsBehavior(
-                        android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                insetsController.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+                insetsController.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             }
         } else {
             // Legacy method for older Android versions
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+            );
         }
     }
 
@@ -437,19 +429,18 @@ public class PlayerActivity extends AppCompatActivity implements
             Log.e(TAG, "Window is null in showSystemUI!");
             return;
         }
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(true);
-            getWindow().getInsetsController().show(
-                    android.view.WindowInsets.Type.statusBars() |
-                    android.view.WindowInsets.Type.navigationBars());
+            getWindow()
+                .getInsetsController()
+                .show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
         } else {
             // Legacy method for older Android versions
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            );
         }
     }
 
@@ -459,7 +450,7 @@ public class PlayerActivity extends AppCompatActivity implements
             Log.e(TAG, "Window is null in toggleSystemUI!");
             return;
         }
-         
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // For Android 11+, use InsetsController to check visibility
             // Just toggle - there's no direct visibility check for R+
