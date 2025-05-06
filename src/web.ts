@@ -139,28 +139,91 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
       displaytitle: false,
     });
 
-    // Show or hide the close button based on controls visibility
-    this.jwPlayerInstance.on('controls', (data: { controls: boolean }) => {
-      console.log('controls', data);
-      closeButton.style.opacity = data.controls ? '1' : '0';
-      closeButton.style.pointerEvents = data.controls ? 'auto' : 'none';
-    });
-
-    this.jwPlayerInstance.on('error', (e: any) => {
-      console.log('error', e);
-    });
-
-    this.jwPlayerInstance.on('ready', (e: any) => {
-      console.log('ready', e);
-    });
+    // Add unified event handlers to match iOS and Android
+    this.setupEventHandlers();
     
     return;
+  }
+
+  // Setup unified event handlers to match iOS and Android
+  private setupEventHandlers() {
+    if (!this.jwPlayerInstance) return;
+    
+    // Ready event
+    this.jwPlayerInstance.on('ready', () => {
+      this.notifyListeners('ready', {});
+    });
+    
+    // Error event
+    this.jwPlayerInstance.on('error', (error: any) => {
+      this.notifyListeners('error', {
+        message: error?.message || 'Unknown error',
+        code: error?.code || -1
+      });
+    });
+    
+    // Play event 
+    this.jwPlayerInstance.on('play', () => {
+      this.notifyListeners('play', { reason: 'external' });
+    });
+    
+    // Pause event
+    this.jwPlayerInstance.on('pause', () => {
+      this.notifyListeners('pause', { reason: 'external' });
+    });
+    
+    // Complete event
+    this.jwPlayerInstance.on('complete', () => {
+      this.notifyListeners('complete', {});
+    });
+    
+    // Seek event
+    this.jwPlayerInstance.on('seek', (event: { position: number; offset: number }) => {
+      this.notifyListeners('seek', {
+        position: event.position,
+        offset: event.offset
+      });
+    });
+    
+    // Time event (throttled to not fire too often)
+    let lastTimeUpdate = 0;
+    this.jwPlayerInstance.on('time', (event: { position: number; duration: number }) => {
+      const now = Date.now();
+      // Throttle to once per second max
+      if (now - lastTimeUpdate > 1000) {
+        this.notifyListeners('time', {
+          position: event.position,
+          duration: event.duration
+        });
+        lastTimeUpdate = now;
+      }
+    });
+    
+    // Playlist item event
+    this.jwPlayerInstance.on('playlistItem', (event: { index: number; item: any }) => {
+      this.notifyListeners('playlistItem', {
+        index: event.index,
+        title: event.item?.title || ''
+      });
+    });
+    
+    // Playlist complete event
+    this.jwPlayerInstance.on('playlistComplete', () => {
+      this.notifyListeners('playlistComplete', {});
+    });
+    
+    // Controls visibility event
+    this.jwPlayerInstance.on('controls', (event: { controls: boolean }) => {
+      this.notifyListeners('controlsChanged', {
+        visible: event.controls
+      });
+    });
   }
 
   async pause(): Promise<void> {
     if (this.jwPlayerInstance) {
       this.jwPlayerInstance.pause();
-      this.notifyListeners('pause', { reason: 'user' });
+      // Event is fired by the event handler
       return;
     }
     throw new Error('Player not active');
@@ -176,7 +239,9 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
         this.overlayDiv = null;
       }
       
-      this.notifyListeners('complete', {});
+      // The complete event will be triggered by the JW Player event handler,
+      // but since we're removing the player instance, we need to send it manually here
+      this.notifyListeners('playerDismissed', {});
       return;
     }
     throw new Error('Player not active');
@@ -317,7 +382,7 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
   async resume(): Promise<void> {
     if (this.jwPlayerInstance) {
       this.jwPlayerInstance.play();
-      this.notifyListeners('play', {});
+      // Event is fired by the event handler
       return;
     }
     throw new Error('Player not active');

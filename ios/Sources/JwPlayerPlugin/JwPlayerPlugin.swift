@@ -580,6 +580,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     private var callbackHandler: CallbackHandler?
     private var playerConfig: JWPlayerConfiguration?
     private var closeButton: UIButton! // Custom close button
+    private var timeUpdateTimer: Timer? // Timer for periodic time updates
 
     // Standard init is unavailable
     @available(*, unavailable)
@@ -642,6 +643,9 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Configuring player from init config")
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
+            
+            // JWPlayerViewController already has self as delegates
+            // We are just implementing the delegate methods
         } else {
             print("[JWPlayer] Error: Player configuration is missing in viewDidLoad")
             self.callbackHandler?.notifyEventListener("error", data: ["message": "Player configuration missing"])
@@ -649,17 +653,57 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
 
         // Add the custom close button
         setupCloseButton()
+        
+        // Start time update timer after player is ready
+        startTimeUpdateTimer()
+    }
+    
+    // Start a timer to emit time updates periodically
+    private func startTimeUpdateTimer() {
+        // Cancel any existing timer
+        timeUpdateTimer?.invalidate()
+        
+        // Create a new timer that fires every second
+        timeUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if self.player.getState() == .playing {
+                let position = self.player.time.position
+                let duration = self.player.time.duration
+                
+                let timeData: [String: Any] = [
+                    "position": position,
+                    "duration": duration
+                ]
+                
+                self.callbackHandler?.notifyEventListener("time", data: timeData)
+            }
+        }
+    }
+    
+    // Stop the time update timer
+    private func stopTimeUpdateTimer() {
+        timeUpdateTimer?.invalidate()
+        timeUpdateTimer = nil
     }
 
     override func viewDidAppear(_ animated: Bool) {
         print("[JWPlayer] viewDidAppear")
         super.viewDidAppear(animated)
-
-        // Start playback automatically
-        // print("[JWPlayer] Starting playback")
-        // player.play()
-        // print("[JWPlayer] Playback started")
         print("[JWPlayer] Button exists \(view.viewWithTag(2136) !== nil)")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // Stop the time update timer when view disappears
+        stopTimeUpdateTimer()
+
+        // Only trigger the dismissal callback if it's a manual dismissal
+        if self.isBeingDismissed || self.isMovingFromParent {
+            print("[JWPlayer] Manual dismissal detected in viewWillDisappear")
+            callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
+        }
     }
 
     // Setup and add the custom close button
@@ -703,6 +747,89 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         }
     }
 
+    // MARK: - JWPlayerDelegate Methods
+    
+    override func jwplayerIsReady(_ player: JWPlayer) {
+        super.jwplayerIsReady(player)
+        print("[JWPlayer] Player is ready")
+        callbackHandler?.notifyEventListener("ready", data: nil)
+    }
+    
+    override func jwplayer(_ player: JWPlayer, failedWithError code: UInt, message: String) {
+        super.jwplayer(player, failedWithError: code, message: message)
+        print("[JWPlayer] Error: \(message), code: \(code)")
+        let errorData: [String: Any] = [
+            "message": message,
+            "code": code
+        ]
+        callbackHandler?.notifyEventListener("error", data: errorData)
+    }
+    
+    override func jwplayer(_ player: JWPlayer, failedWithSetupError code: UInt, message: String) {
+        super.jwplayer(player, failedWithSetupError: code, message: message)
+        print("[JWPlayer] Setup error: \(message), code: \(code)")
+        let errorData: [String: Any] = [
+            "message": message,
+            "code": code
+        ]
+        callbackHandler?.notifyEventListener("error", data: errorData)
+    }
+    
+    // MARK: - JWPlayerStateDelegate Methods
+    
+    override func jwplayer(_ player: JWPlayer, isPlayingWithReason reason: JWPlayReason) {
+        super.jwplayer(player, isPlayingWithReason: reason)
+        print("[JWPlayer] Playing with reason: \(reason)")
+        callbackHandler?.notifyEventListener("play", data: ["reason": reason.rawValue])
+    }
+    
+    override func jwplayer(_ player: JWPlayer, didPauseWithReason reason: JWPauseReason) {
+        super.jwplayer(player, didPauseWithReason: reason)
+        print("[JWPlayer] Paused with reason: \(reason)")
+        callbackHandler?.notifyEventListener("pause", data: ["reason": reason.rawValue])
+    }
+    
+    override func jwplayerContentDidComplete(_ player: JWPlayer) {
+        super.jwplayerContentDidComplete(player)
+        print("[JWPlayer] Content completed")
+        callbackHandler?.notifyEventListener("complete", data: nil)
+    }
+    
+    override func jwplayer(_ player: JWPlayer, seekedFrom position: TimeInterval, to offset: TimeInterval) {
+        super.jwplayer(player, seekedFrom: position, to: offset)
+        print("[JWPlayer] Seeked from \(position) to \(offset)")
+        let seekData: [String: Any] = [
+            "position": position,
+            "offset": offset
+        ]
+        callbackHandler?.notifyEventListener("seek", data: seekData)
+    }
+    
+    override func jwplayerHasSeeked(_ player: JWPlayer) {
+        super.jwplayerHasSeeked(player)
+        print("[JWPlayer] Seeked")
+        callbackHandler?.notifyEventListener("seeked", data: nil)
+    }
+    
+    override func jwplayer(_ player: JWPlayer, didLoadPlaylistItem item: JWPlayerItem, at index: UInt) {
+        super.jwplayer(player, didLoadPlaylistItem: item, at: index)
+        print("[JWPlayer] Playlist item loaded at index: \(index)")
+        var itemData: [String: Any] = ["index": index]
+        
+        // Add title if available
+        if let title = item.title, !title.isEmpty {
+            itemData["title"] = title
+        }
+        
+        callbackHandler?.notifyEventListener("playlistItem", data: itemData)
+    }
+    
+    override func jwplayerPlaylistHasCompleted(_ player: JWPlayer) {
+        super.jwplayerPlaylistHasCompleted(player)
+        print("[JWPlayer] Playlist completed")
+        callbackHandler?.notifyEventListener("playlistComplete", data: nil)
+    }
+
     // MARK: - JWPlayerViewControllerUIDelegate Method
 
     func playerViewController(_ controller: JWPlayerViewController, controlBarVisibilityChanged isVisible: Bool, frame: CGRect) {
@@ -713,6 +840,9 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         // Ensure closeButton is not nil before accessing
         guard let button = self.closeButton else { return }
         button.alpha = targetAlpha
+        
+        // Emit controlsChanged event to match other platforms
+        callbackHandler?.notifyEventListener("controlsChanged", data: ["visible": isVisible])
     }
 
     // MARK: - AVPictureInPictureControllerDelegate Methods
@@ -729,11 +859,13 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     override func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Start")
         super.pictureInPictureControllerDidStartPictureInPicture(pictureInPictureController)
+        callbackHandler?.notifyEventListener("pipStarted", data: ["isInPictureInPictureMode": true])
     }
 
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
         print("[JWPlayer] Delegate: PiP Failed to Start: \(error.localizedDescription)")
         super.pictureInPictureController(pictureInPictureController, failedToStartPictureInPictureWithError: error)
+        callbackHandler?.notifyEventListener("error", data: ["message": "Failed to start PiP: \(error.localizedDescription)"])
     }
 
     override func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
@@ -744,17 +876,10 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     override func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Did Stop")
         super.pictureInPictureControllerDidStopPictureInPicture(pictureInPictureController)
-
-        // If PiP is stopped directly by the user without restoration, notify the plugin
-        // print("[JWPlayer] PiP stopped, cleaning up plugin reference.")
-        // self.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
+        callbackHandler?.notifyEventListener("pipStopped", data: ["isInPictureInPictureMode": false])
     }
 
     override func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        // print("[JWPlayer] Delegate: PiP Restore UI Requested")
-        // Ask the plugin to re-present this view controller instance
-        // callbackHandler?.rePresentPlayerRequested()
-
         // Here I will REMOVE the button to close and readd it
         if let closeButton = self.closeButton {
             closeButton.removeFromSuperview()
@@ -764,16 +889,6 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         // MARK: - IMPORTANT-
         // Make sure to call the super method when you have restored the UI, it is important to notify the system of this.
         super.pictureInPictureController(pictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-
-        // Only trigger the dismissal callback if it's a manual dismissal
-        if self.isBeingDismissed || self.isMovingFromParent {
-            print("[JWPlayer] Manual dismissal detected in viewWillDisappear")
-            callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
-        }
     }
 
     // MARK: - JWCastDelegate
