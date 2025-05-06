@@ -29,7 +29,7 @@ let package = Package(
             path: "ios/Sources/JwPlayerPlugin"),
         .binaryTarget(
             name: "GoogleCast",
-            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-\(GoogleCastMetadata.version)_dynamic.xcframework.zip",
+            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-\(GoogleCastMetadata.version)_dynamic.zip",
             checksum: GoogleCastMetadata.checksum
         ),
         .testTarget(

@@ -1,6 +1,6 @@
 {
   "name": "@capgo/capacitor-jw-player",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "description": "Playes videos from jwplayer.com",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -59,7 +59,8 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.30.1",
     "swiftlint": "^2.0.0",
-    "typescript": "~4.1.5"
+    "typescript": "~4.1.5",
+    "@types/jwplayer": "^8.31.3"
   },
   "peerDependencies": {
     "@capacitor/core": ">=7.2.0"

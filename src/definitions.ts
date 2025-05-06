@@ -3,9 +3,10 @@ export interface JwPlayerPlugin {
    * Initialize the JW Player
    * @param options - The options for the JW Player
    * @param options.licenseKey - The license key for the JW Player. Keep in mind that this is different for iOS and Android.
+   * @param options.playerUrl - The player URL for the JW Player. This is used on the web in order to load the player.
    * @returns A promise that resolves when initialized
    */
-  initialize(options: { licenseKey: string }): Promise<void>;
+  initialize(options: { licenseKey: string; playerUrl?: string }): Promise<void>;
 
   /**
    * Play a video
@@ -140,4 +141,118 @@ export interface JwPlayerPlugin {
    * @returns A promise that resolves to the current playlist
    */
   currentPlaylist(): Promise<any>;
+}
+
+/**
+ * Events emitted by the JW Player plugin across all platforms.
+ * 
+ * The plugin uses Capacitor's event system. You can listen to these events using:
+ * ```
+ * import { Plugins } from '@capacitor/core';
+ * const { JwPlayer } = Plugins;
+ * 
+ * JwPlayer.addListener('ready', () => {
+ *   console.log('Player is ready');
+ * });
+ * ```
+ */
+export interface JwPlayerEvents {
+  /**
+   * Fired when the player is ready
+   */
+  ready: void;
+  
+  /**
+   * Fired when the player encounters an error
+   */
+  error: {
+    message: string;
+    code?: number;
+  };
+  
+  /**
+   * Fired when playback starts or resumes
+   */
+  play: {
+    reason: string;
+  };
+  
+  /**
+   * Fired when playback is paused
+   */
+  pause: {
+    reason: string;
+  };
+  
+  /**
+   * Fired when playback completes (reaches the end)
+   */
+  complete: void;
+  
+  /**
+   * Fired when the player is seeking to a new position
+   */
+  seek: {
+    position: number;
+    offset: number;
+  };
+  
+  /**
+   * Fired when the player has completed seeking
+   */
+  seeked: void;
+  
+  /**
+   * Fired periodically during playback with time updates (throttled)
+   */
+  time: {
+    position: number;
+    duration: number;
+  };
+  
+  /**
+   * Fired when a new playlist item starts playing
+   */
+  playlistItem: {
+    index: number;
+    title?: string;
+  };
+  
+  /**
+   * Fired when playback of the entire playlist is complete
+   */
+  playlistComplete: void;
+  
+  /**
+   * Fired when the player enters or exits fullscreen mode
+   */
+  fullscreen: {
+    fullscreen: boolean;
+  };
+  
+  /**
+   * Fired when the player UI controls visibility changes (show/hide)
+   */
+  controlsChanged: {
+    visible: boolean;
+  };
+  
+  /**
+   * Fired when the player is dismissed (closed)
+   */
+  playerDismissed: void;
+  
+  /**
+   * Fired when the player enters Picture-in-Picture mode (iOS/Android only)
+   */
+  pipStarted: {
+    isInPictureInPictureMode?: boolean;
+  };
+  
+  /**
+   * Fired when the player exits Picture-in-Picture mode (iOS/Android only)
+   */
+  pipStopped: {
+    isInPictureInPictureMode?: boolean;
+  };
 }

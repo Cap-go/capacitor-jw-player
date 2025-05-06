@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.15](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.14...0.0.15) (2025-05-06)
+
+
+### Features
+
+* implement web ([adca310](https://github.com/Cap-go/capacitor-jw-player/commit/adca310a3e6c34a9d8845e03885406bd8a2182b5))
+* unify event handlers ([9154020](https://github.com/Cap-go/capacitor-jw-player/commit/915402055693c3ecf0114bff22224050229525f3))
+
+### [0.0.14](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.13...0.0.14) (2025-05-06)
+
+
+### Bug Fixes
+
+* update to v0.0.13 ([d721611](https://github.com/Cap-go/capacitor-jw-player/commit/d7216112a740ad8f9b511614991526562276f388))
+
 ### [0.0.13](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.11...0.0.13) (2025-05-05)
 
 
