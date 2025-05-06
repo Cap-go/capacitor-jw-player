@@ -217,14 +217,14 @@ function cleanup() {
 ### initialize(...)
 
 ```typescript
-initialize(options: { licenseKey: string; }) => Promise<void>
+initialize(options: { licenseKey: string; playerUrl?: string; }) => Promise<void>
 ```
 
 Initialize the JW Player
 
-| Param         | Type                                 | Description                     |
-| ------------- | ------------------------------------ | ------------------------------- |
-| **`options`** | <code>{ licenseKey: string; }</code> | - The options for the JW Player |
+| Param         | Type                                                     | Description                     |
+| ------------- | -------------------------------------------------------- | ------------------------------- |
+| **`options`** | <code>{ licenseKey: string; playerUrl?: string; }</code> | - The options for the JW Player |
 
 --------------------
 

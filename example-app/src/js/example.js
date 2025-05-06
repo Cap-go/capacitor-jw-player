@@ -1,6 +1,6 @@
 import { JwPlayer } from '@capgo/capacitor-jw-player';
 import { Capacitor } from '@capacitor/core';
-import { licenseKeyIos, licenseKeyAndroid } from './license';
+import { licenseKeyIos, licenseKeyAndroid, playerUrl } from './license';
 
 // For displaying results
 const showResult = (title, data) => {
@@ -19,9 +19,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             await JwPlayer.initialize({
                 licenseKey: licenseKeyIos
             });
-        } else {
+        } else if (platform === 'android') {
             await JwPlayer.initialize({
                 licenseKey: licenseKeyAndroid
+            });
+        } else {
+            await JwPlayer.initialize({
+                playerUrl: playerUrl
             });
         }
         

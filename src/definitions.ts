@@ -3,9 +3,10 @@ export interface JwPlayerPlugin {
    * Initialize the JW Player
    * @param options - The options for the JW Player
    * @param options.licenseKey - The license key for the JW Player. Keep in mind that this is different for iOS and Android.
+   * @param options.playerUrl - The player URL for the JW Player. This is used on the web in order to load the player.
    * @returns A promise that resolves when initialized
    */
-  initialize(options: { licenseKey: string }): Promise<void>;
+  initialize(options: { licenseKey: string; playerUrl?: string }): Promise<void>;
 
   /**
    * Play a video
