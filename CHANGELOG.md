@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.17](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.16...0.0.17) (2025-05-09)
+
+
+### Bug Fixes
+
+* playlist issue on Android ([5ec5eb2](https://github.com/Cap-go/capacitor-jw-player/commit/5ec5eb29a3407020439fca14143a7d4b08350482))
+
 ### [0.0.16](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.15...0.0.16) (2025-05-06)
 
 
