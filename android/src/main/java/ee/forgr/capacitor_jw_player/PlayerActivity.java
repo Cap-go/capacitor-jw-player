@@ -151,10 +151,10 @@ public class PlayerActivity
     private void loadMedia(String mediaUrl, String mediaType, boolean autostart) {
         if (mediaType.equals("video")) {
             PlaylistItem playlistItem = new PlaylistItem.Builder()
-                    .file(mediaUrl)
-                    // .title("Video Title") // Optional
-                    // .description("Video Description") // Optional
-                    .build();
+                .file(mediaUrl)
+                // .title("Video Title") // Optional
+                // .description("Video Description") // Optional
+                .build();
 
             List<PlaylistItem> playlist = new ArrayList<>();
             playlist.add(playlistItem);

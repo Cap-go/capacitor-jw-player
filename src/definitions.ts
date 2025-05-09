@@ -145,12 +145,12 @@ export interface JwPlayerPlugin {
 
 /**
  * Events emitted by the JW Player plugin across all platforms.
- * 
+ *
  * The plugin uses Capacitor's event system. You can listen to these events using:
  * ```
  * import { Plugins } from '@capacitor/core';
  * const { JwPlayer } = Plugins;
- * 
+ *
  * JwPlayer.addListener('ready', () => {
  *   console.log('Player is ready');
  * });
@@ -161,7 +161,7 @@ export interface JwPlayerEvents {
    * Fired when the player is ready
    */
   ready: void;
-  
+
   /**
    * Fired when the player encounters an error
    */
@@ -169,26 +169,26 @@ export interface JwPlayerEvents {
     message: string;
     code?: number;
   };
-  
+
   /**
    * Fired when playback starts or resumes
    */
   play: {
     reason: string;
   };
-  
+
   /**
    * Fired when playback is paused
    */
   pause: {
     reason: string;
   };
-  
+
   /**
    * Fired when playback completes (reaches the end)
    */
   complete: void;
-  
+
   /**
    * Fired when the player is seeking to a new position
    */
@@ -196,12 +196,12 @@ export interface JwPlayerEvents {
     position: number;
     offset: number;
   };
-  
+
   /**
    * Fired when the player has completed seeking
    */
   seeked: void;
-  
+
   /**
    * Fired periodically during playback with time updates (throttled)
    */
@@ -209,7 +209,7 @@ export interface JwPlayerEvents {
     position: number;
     duration: number;
   };
-  
+
   /**
    * Fired when a new playlist item starts playing
    */
@@ -217,38 +217,38 @@ export interface JwPlayerEvents {
     index: number;
     title?: string;
   };
-  
+
   /**
    * Fired when playback of the entire playlist is complete
    */
   playlistComplete: void;
-  
+
   /**
    * Fired when the player enters or exits fullscreen mode
    */
   fullscreen: {
     fullscreen: boolean;
   };
-  
+
   /**
    * Fired when the player UI controls visibility changes (show/hide)
    */
   controlsChanged: {
     visible: boolean;
   };
-  
+
   /**
    * Fired when the player is dismissed (closed)
    */
   playerDismissed: void;
-  
+
   /**
    * Fired when the player enters Picture-in-Picture mode (iOS/Android only)
    */
   pipStarted: {
     isInPictureInPictureMode?: boolean;
   };
-  
+
   /**
    * Fired when the player exits Picture-in-Picture mode (iOS/Android only)
    */
