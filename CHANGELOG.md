@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.19](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.18...0.0.19) (2025-05-09)
+
+
+### Bug Fixes
+
+* build ([921a797](https://github.com/Cap-go/capacitor-jw-player/commit/921a7970220be8eae2d420372b235637f4b1bf23))
+
 ### [0.0.18](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.17...0.0.18) (2025-05-09)
 
 
