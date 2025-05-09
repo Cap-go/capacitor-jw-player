@@ -149,19 +149,25 @@ public class PlayerActivity
     }
 
     private void loadMedia(String mediaUrl, String mediaType, boolean autostart) {
-        PlaylistItem playlistItem = new PlaylistItem.Builder()
-            .file(mediaUrl)
-            // .title("Video Title") // Optional
-            // .description("Video Description") // Optional
-            .build();
+        if (mediaType.equals("video")) {
+            PlaylistItem playlistItem = new PlaylistItem.Builder()
+                    .file(mediaUrl)
+                    // .title("Video Title") // Optional
+                    // .description("Video Description") // Optional
+                    .build();
 
-        List<PlaylistItem> playlist = new ArrayList<>();
-        playlist.add(playlistItem);
+            List<PlaylistItem> playlist = new ArrayList<>();
+            playlist.add(playlistItem);
 
-        PlayerConfig config = new PlayerConfig.Builder().playlist(playlist).autostart(autostart).build();
+            PlayerConfig config = new PlayerConfig.Builder().playlist(playlist).autostart(autostart).build();
 
-        mPlayer.setup(config);
-        Log.d(TAG, "Player setup initiated.");
+            mPlayer.setup(config);
+            Log.d(TAG, "Player setup initiated.");
+        } else if (mediaType.equals("playlist")) {
+            PlayerConfig config = new PlayerConfig.Builder().playlistUrl(mediaUrl).autostart(autostart).build();
+
+            mPlayer.setup(config);
+        }
     }
 
     private void setupPlayerListeners() {
