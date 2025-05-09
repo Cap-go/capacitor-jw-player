@@ -113,7 +113,7 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
         this.jwPlayerInstance.remove();
         this.jwPlayerInstance = null;
       }
-      if (this.overlayDiv && this.overlayDiv.parentNode) {
+      if (this.overlayDiv?.parentNode) {
         document.body.removeChild(this.overlayDiv);
         this.overlayDiv = null;
         this.notifyListeners('playerDismissed', {});
@@ -234,7 +234,7 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
       this.jwPlayerInstance.remove();
       this.jwPlayerInstance = null;
       
-      if (this.overlayDiv && this.overlayDiv.parentNode) {
+      if (this.overlayDiv?.parentNode) {
         document.body.removeChild(this.overlayDiv);
         this.overlayDiv = null;
       }

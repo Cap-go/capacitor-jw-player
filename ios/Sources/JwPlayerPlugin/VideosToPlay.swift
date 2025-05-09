@@ -1,3 +1,4 @@
+import Foundation
 //
 //  VideosToPlay.swift
 //  Pods

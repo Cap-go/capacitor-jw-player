@@ -15,7 +15,8 @@ protocol CallbackHandler {
 }
 
 @objc(JwPlayerPlugin)
-public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
+public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
+// public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
     public let jsName = "JwPlayer"
     public let pluginMethods: [CAPPluginMethod] = [
@@ -45,8 +46,8 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     override public func load() {
         // Configure the audio session when the plugin loads
         setupAudioSession()
-        print("[JWPlayer] Plugin loaded. Note: Chromecast is initialized in AppDelegate.")
-        initializeChromecast()
+        // print("[JWPlayer] Plugin loaded. Note: Chromecast is initialized in AppDelegate.")
+        // initializeChromecast()
         super.load()
     }
 
@@ -62,46 +63,46 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
         }
     }
 
-    private func initializeChromecast() {
-        print("[ChromecastDebug] Starting Chromecast initialization")
-        let kReceiverAppID = "CC1AD845" // Custom App ID for Chromecast
-        let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kReceiverAppID)
-        let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
-        options.physicalVolumeButtonsWillControlDeviceVolume = true
-        options.disableDiscoveryAutostart = false
-        print("[ChromecastDebug] Setting custom options for Chromecast")
-        do {
-            GCKCastContext.setSharedInstanceWith(options)
-            print("[ChromecastDebug] Chromecast context initialized with App ID: \(kReceiverAppID)")
-        } catch {
-            print("[ChromecastDebug] Error initializing Chromecast context: \(error.localizedDescription)")
-        }
+    // private func initializeChromecast() {
+    //     print("[ChromecastDebug] Starting Chromecast initialization")
+    //     let kReceiverAppID = "CC1AD845" // Custom App ID for Chromecast
+    //     let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kReceiverAppID)
+    //     let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
+    //     options.physicalVolumeButtonsWillControlDeviceVolume = true
+    //     options.disableDiscoveryAutostart = false
+    //     print("[ChromecastDebug] Setting custom options for Chromecast")
+    //     do {
+    //         GCKCastContext.setSharedInstanceWith(options)
+    //         print("[ChromecastDebug] Chromecast context initialized with App ID: \(kReceiverAppID)")
+    //     } catch {
+    //         print("[ChromecastDebug] Error initializing Chromecast context: \(error.localizedDescription)")
+    //     }
 
-        let filter = GCKLoggerFilter.init()
-        filter.minimumLevel = .verbose
-        GCKLogger.sharedInstance().filter = filter
-        GCKLogger.sharedInstance().delegate = self
-        print("[ChromecastDebug] Logger initialized")
-    }
+    //     let filter = GCKLoggerFilter.init()
+    //     filter.minimumLevel = .verbose
+    //     GCKLogger.sharedInstance().filter = filter
+    //     GCKLogger.sharedInstance().delegate = self
+    //     print("[ChromecastDebug] Logger initialized")
+    // }
 
-    public func logMessage(_ message: String, at level: GCKLoggerLevel, fromFunction function: String, location: String) {
-        print(function + " - " + message)
-    }
+    // public func logMessage(_ message: String, at level: GCKLoggerLevel, fromFunction function: String, location: String) {
+    //     print(function + " - " + message)
+    // }
 
-    @objc func initialize(_ call: CAPPluginCall) {
-        print("[JWPlayer] initialize called")
-        guard let licenseKey = call.getString("licenseKey") else {
-            print("[JWPlayer] Error: licenseKey is missing")
-            call.reject("licenseKey is required for initialize")
-            return
-        }
+    // @objc func initialize(_ call: CAPPluginCall) {
+    //     print("[JWPlayer] initialize called")
+    //     guard let licenseKey = call.getString("licenseKey") else {
+    //         print("[JWPlayer] Error: licenseKey is missing")
+    //         call.reject("licenseKey is required for initialize")
+    //         return
+    //     }
 
-        print("[JWPlayer] Setting license key")
-        JWPlayerKitLicense.setLicenseKey(licenseKey)
-        print("[JWPlayer] License key set successfully")
+    //     print("[JWPlayer] Setting license key")
+    //     JWPlayerKitLicense.setLicenseKey(licenseKey)
+    //     print("[JWPlayer] License key set successfully")
 
-        call.resolve()
-    }
+    //     call.resolve()
+    // }
 
     @objc func play(_ call: CAPPluginCall) {
         print("[JWPlayer] play called with options: \(call.options)")
@@ -113,7 +114,7 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
 
         guard let mediaUrl = URL(string: mediaUrlStr) else {
             print("[JWPlayer] Error: mediaUrl is invalid URL: \(mediaUrlStr)")
-            call.reject("mediaUrl is invalid URL")
+            call.reject("mediaUrl is invalid URL: \(mediaUrlStr)")
             return
         }
 
