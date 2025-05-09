@@ -27,11 +27,6 @@ let package = Package(
                 .product(name: "JWPlayerKit", package: "JWPlayerKit-package")
             ],
             path: "ios/Sources/JwPlayerPlugin"),
-        .binaryTarget(
-            name: "GoogleCast",
-            url: "https://dl.google.com/dl/chromecast/sdk/ios/GoogleCastSDK-ios-\(GoogleCastMetadata.version)_dynamic.zip",
-            checksum: GoogleCastMetadata.checksum
-        ),
         .testTarget(
             name: "JwPlayerPluginTests",
             dependencies: ["JwPlayerPlugin"],
