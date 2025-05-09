@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.18](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.17...0.0.18) (2025-05-09)
+
+
+### Bug Fixes
+
+* remove chromecast IOS ([a509db2](https://github.com/Cap-go/capacitor-jw-player/commit/a509db26411bf8edc03f7ac99d668d861dbddce1))
+
 ### [0.0.17](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.16...0.0.17) (2025-05-09)
 
 
