@@ -16,7 +16,7 @@ protocol CallbackHandler {
 
 @objc(JwPlayerPlugin)
 public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
-// public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
+    // public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
     public let jsName = "JwPlayer"
     public let pluginMethods: [CAPPluginMethod] = [
@@ -138,25 +138,25 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
         var config: JWPlayerConfiguration?
         do {
             switch mediaType {
-                case "video":
-                    print("[JWPlayer] Creating video configuration")
-                    let item = try JWPlayerItemBuilder()
-                        .file(mediaUrl)
-                        .build()
-                    config = try JWPlayerConfigurationBuilder()
-                        .playlist(items: [item])
-                        .autostart(autostart)
-                        .build()
-                case "playlist":
-                    print("[JWPlayer] Creating playlist configuration")
-                    config = try JWPlayerConfigurationBuilder()
-                        .playlist(url: mediaUrl)
-                        .autostart(autostart)
-                        .build()
-                default:
-                    print("[JWPlayer] Error: Invalid mediaType: \(mediaType)")
-                    call.reject("Invalid mediaType. Must be either video or playlist")
-                    return
+            case "video":
+                print("[JWPlayer] Creating video configuration")
+                let item = try JWPlayerItemBuilder()
+                    .file(mediaUrl)
+                    .build()
+                config = try JWPlayerConfigurationBuilder()
+                    .playlist(items: [item])
+                    .autostart(autostart)
+                    .build()
+            case "playlist":
+                print("[JWPlayer] Creating playlist configuration")
+                config = try JWPlayerConfigurationBuilder()
+                    .playlist(url: mediaUrl)
+                    .autostart(autostart)
+                    .build()
+            default:
+                print("[JWPlayer] Error: Invalid mediaType: \(mediaType)")
+                call.reject("Invalid mediaType. Must be either video or playlist")
+                return
             }
         } catch {
             print("[JWPlayer] Error creating configuration: \(error.localizedDescription)")
@@ -529,9 +529,9 @@ extension JwPlayerPlugin: CallbackHandler {
             self.viewController = nil
             self.notifyListeners("playerDismissed", data: nil)
         } else {
-             print("[JWPlayer] PiP dismissal detected, keeping VC reference for potential restore.")
-             // Optionally notify JS that PiP started if needed
-             self.notifyListeners("pipStarted", data: nil)
+            print("[JWPlayer] PiP dismissal detected, keeping VC reference for potential restore.")
+            // Optionally notify JS that PiP started if needed
+            self.notifyListeners("pipStarted", data: nil)
         }
     }
 
@@ -548,9 +548,9 @@ extension JwPlayerPlugin: CallbackHandler {
 
         // Ensure it's not already being presented or presenting something else
         if vc.isBeingPresented || vc.presentingViewController != nil || bridgeVC.presentedViewController != nil {
-             print("[JWPlayer] Warning: Cannot re-present, presentation context busy.")
-             return
-         }
+            print("[JWPlayer] Warning: Cannot re-present, presentation context busy.")
+            return
+        }
 
         DispatchQueue.main.async {
             print("[JWPlayer] Re-presenting player view controller")
@@ -643,7 +643,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWPlayer] Configuring player from init config")
             player.configurePlayer(with: config)
             print("[JWPlayer] Player configured successfully from init config")
-            
+
             // JWPlayerViewController already has self as delegates
             // We are just implementing the delegate methods
         } else {
@@ -653,34 +653,34 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
 
         // Add the custom close button
         setupCloseButton()
-        
+
         // Start time update timer after player is ready
         startTimeUpdateTimer()
     }
-    
+
     // Start a timer to emit time updates periodically
     private func startTimeUpdateTimer() {
         // Cancel any existing timer
         timeUpdateTimer?.invalidate()
-        
+
         // Create a new timer that fires every second
         timeUpdateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-            
+
             if self.player.getState() == .playing {
                 let position = self.player.time.position
                 let duration = self.player.time.duration
-                
+
                 let timeData: [String: Any] = [
                     "position": position,
                     "duration": duration
                 ]
-                
+
                 self.callbackHandler?.notifyEventListener("time", data: timeData)
             }
         }
     }
-    
+
     // Stop the time update timer
     private func stopTimeUpdateTimer() {
         timeUpdateTimer?.invalidate()
@@ -695,7 +695,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+
         // Stop the time update timer when view disappears
         stopTimeUpdateTimer()
 
@@ -742,19 +742,19 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
     @objc private func closeButtonTapped() {
         print("[JWPlayer] Custom close button tapped - dismissing player manually")
         self.dismiss(animated: true) { [weak self] in
-             // Use the new callback signature
-             self?.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
+            // Use the new callback signature
+            self?.callbackHandler?.onPlayerDismissed(isPiPDismissal: false)
         }
     }
 
     // MARK: - JWPlayerDelegate Methods
-    
+
     override func jwplayerIsReady(_ player: JWPlayer) {
         super.jwplayerIsReady(player)
         print("[JWPlayer] Player is ready")
         callbackHandler?.notifyEventListener("ready", data: nil)
     }
-    
+
     override func jwplayer(_ player: JWPlayer, failedWithError code: UInt, message: String) {
         super.jwplayer(player, failedWithError: code, message: message)
         print("[JWPlayer] Error: \(message), code: \(code)")
@@ -764,7 +764,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         ]
         callbackHandler?.notifyEventListener("error", data: errorData)
     }
-    
+
     override func jwplayer(_ player: JWPlayer, failedWithSetupError code: UInt, message: String) {
         super.jwplayer(player, failedWithSetupError: code, message: message)
         print("[JWPlayer] Setup error: \(message), code: \(code)")
@@ -774,27 +774,27 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         ]
         callbackHandler?.notifyEventListener("error", data: errorData)
     }
-    
+
     // MARK: - JWPlayerStateDelegate Methods
-    
+
     override func jwplayer(_ player: JWPlayer, isPlayingWithReason reason: JWPlayReason) {
         super.jwplayer(player, isPlayingWithReason: reason)
         print("[JWPlayer] Playing with reason: \(reason)")
         callbackHandler?.notifyEventListener("play", data: ["reason": reason.rawValue])
     }
-    
+
     override func jwplayer(_ player: JWPlayer, didPauseWithReason reason: JWPauseReason) {
         super.jwplayer(player, didPauseWithReason: reason)
         print("[JWPlayer] Paused with reason: \(reason)")
         callbackHandler?.notifyEventListener("pause", data: ["reason": reason.rawValue])
     }
-    
+
     override func jwplayerContentDidComplete(_ player: JWPlayer) {
         super.jwplayerContentDidComplete(player)
         print("[JWPlayer] Content completed")
         callbackHandler?.notifyEventListener("complete", data: nil)
     }
-    
+
     override func jwplayer(_ player: JWPlayer, seekedFrom position: TimeInterval, to offset: TimeInterval) {
         super.jwplayer(player, seekedFrom: position, to: offset)
         print("[JWPlayer] Seeked from \(position) to \(offset)")
@@ -804,26 +804,26 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         ]
         callbackHandler?.notifyEventListener("seek", data: seekData)
     }
-    
+
     override func jwplayerHasSeeked(_ player: JWPlayer) {
         super.jwplayerHasSeeked(player)
         print("[JWPlayer] Seeked")
         callbackHandler?.notifyEventListener("seeked", data: nil)
     }
-    
+
     override func jwplayer(_ player: JWPlayer, didLoadPlaylistItem item: JWPlayerItem, at index: UInt) {
         super.jwplayer(player, didLoadPlaylistItem: item, at: index)
         print("[JWPlayer] Playlist item loaded at index: \(index)")
         var itemData: [String: Any] = ["index": index]
-        
+
         // Add title if available
         if let title = item.title, !title.isEmpty {
             itemData["title"] = title
         }
-        
+
         callbackHandler?.notifyEventListener("playlistItem", data: itemData)
     }
-    
+
     override func jwplayerPlaylistHasCompleted(_ player: JWPlayer) {
         super.jwplayerPlaylistHasCompleted(player)
         print("[JWPlayer] Playlist completed")
@@ -840,7 +840,7 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         // Ensure closeButton is not nil before accessing
         guard let button = self.closeButton else { return }
         button.alpha = targetAlpha
-        
+
         // Emit controlsChanged event to match other platforms
         callbackHandler?.notifyEventListener("controlsChanged", data: ["visible": isVisible])
     }
