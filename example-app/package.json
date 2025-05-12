@@ -15,8 +15,8 @@
   "dependencies": {
     "@capacitor/core": "latest",
     "@capgo/capacitor-jw-player": "file:..",
-    "@capacitor/ios": "7.0.0",
-    "@capacitor/android": "7.0.0"
+    "@capacitor/ios": "7.2.0",
+    "@capacitor/android": "7.2.0"
   },
   "devDependencies": {
     "@capacitor/cli": "latest",
