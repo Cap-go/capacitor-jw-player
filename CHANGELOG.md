@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.28](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.27...0.0.28) (2025-05-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency androidx.coordinatorlayout:coordinatorlayout to v1.3.0 ([#9](https://github.com/Cap-go/capacitor-jw-player/issues/9)) ([4158ca5](https://github.com/Cap-go/capacitor-jw-player/commit/4158ca5bf573fefa03b052979ae731aafa538457))
+
 ### [0.0.27](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.26...0.0.27) (2025-05-19)
 
 ### [0.0.26](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.25...0.0.26) (2025-05-12)
