@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.31](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.30...0.0.31) (2025-05-28)
+
+
+### Bug Fixes
+
+* **deps:** update JWPlayerKit dependency to version 4.22.0 ([f4ff3a4](https://github.com/Cap-go/capacitor-jw-player/commit/f4ff3a46cd9247238c8e460743beb09e2e5ede56))
+
 ### [0.0.30](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.29...0.0.30) (2025-05-26)
 
 ### [0.0.29](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.28...0.0.29) (2025-05-26)
