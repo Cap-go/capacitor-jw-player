@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.32](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.31...0.0.32) (2025-06-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency androidx.media:media to v1.7.0 ([#15](https://github.com/Cap-go/capacitor-jw-player/issues/15)) ([bf076b1](https://github.com/Cap-go/capacitor-jw-player/commit/bf076b1c2cb817312e163339f3add134e6b08a06))
+
 ### [0.0.31](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.30...0.0.31) (2025-05-28)
 
 
