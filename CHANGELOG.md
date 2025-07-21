@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.38](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.37...0.0.38) (2025-07-21)
+
+
+### Bug Fixes
+
+* **deps:** update capacitor monorepo to v7.4.2 ([#19](https://github.com/Cap-go/capacitor-jw-player/issues/19)) ([b53bcfd](https://github.com/Cap-go/capacitor-jw-player/commit/b53bcfd30ae133fd5ab7ed0c6341e12328fe4cc3))
+
 ### [0.0.37](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.36...0.0.37) (2025-07-21)
 
 ### [0.0.36](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.35...0.0.36) (2025-07-19)
