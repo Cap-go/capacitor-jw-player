@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.0.2](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.1...7.0.2) (2025-08-19)
+
 ## [7.0.1](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.38...7.0.1) (2025-08-19)
 
 
