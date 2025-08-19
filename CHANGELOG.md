@@ -1,6 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [7.0.1](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.38...7.0.1) (2025-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency androidx.appcompat:appcompat to v1.7.1 ([56f701d](https://github.com/Cap-go/capacitor-jw-player/commit/56f701d4b923980d2908d743858834437aab9a14))
+* **deps:** update dependency androidx.media:media to v1.7.1 ([64cb117](https://github.com/Cap-go/capacitor-jw-player/commit/64cb117c1d5946832e32649cb255d1061e7d1934))
+* **deps:** update dependency com.google.gms:google-services to v4.4.3 ([2eb6999](https://github.com/Cap-go/capacitor-jw-player/commit/2eb6999bde6fffcf40a9932c8b9fad41317c7237))
 
 ### [0.0.38](https://github.com/Cap-go/capacitor-jw-player/compare/0.0.37...0.0.38) (2025-07-21)
 
