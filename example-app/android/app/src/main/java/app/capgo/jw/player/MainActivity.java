@@ -1,4 +1,4 @@
-package com.example.plugin;
+package app.capgo.jw.player;
 
 import com.getcapacitor.BridgeActivity;
 

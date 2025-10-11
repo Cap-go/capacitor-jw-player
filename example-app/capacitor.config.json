@@ -1,6 +1,6 @@
 {
   "appId": "app.capgo.jw.player",
-  "appName": "JW Player Example",
+  "appName": "Jw Player Example",
   "webDir": "dist",
   "plugins": {
     "SplashScreen": {

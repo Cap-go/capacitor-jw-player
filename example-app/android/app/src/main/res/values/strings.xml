@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">JW Player Example</string>
-    <string name="title_activity_main">JW Player Example</string>
+    <string name="app_name">Jw Player Example</string>
+    <string name="title_activity_main">Jw Player Example</string>
     <string name="package_name">app.capgo.jw.player</string>
     <string name="custom_url_scheme">app.capgo.jw.player</string>
 </resources>
