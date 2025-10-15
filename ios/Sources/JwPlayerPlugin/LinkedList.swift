@@ -177,7 +177,7 @@ extension LinkedList: Collection {
     public struct Index: Comparable {
         public var node: Node<Value>?
 
-        public static func ==(lhs: Index, rhs: Index) -> Bool {
+        public static func == (lhs: Index, rhs: Index) -> Bool {
             switch (lhs.node, rhs.node) {
             case let (left?, right?):
                 return left === right
@@ -188,7 +188,7 @@ extension LinkedList: Collection {
             }
         }
 
-        public static func <(lhs: Index, rhs: Index) -> Bool {
+        public static func < (lhs: Index, rhs: Index) -> Bool {
             guard lhs != rhs else {
                 return false
             }

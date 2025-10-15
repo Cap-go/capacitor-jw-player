@@ -107,13 +107,13 @@ public class PlayerActivity
 
         // Setup Close Button
         mCloseButton = findViewById(R.id.close_button);
-        mCloseButton.setOnClickListener(v -> finish());
+        mCloseButton.setOnClickListener((v) -> finish());
 
         ControlbarViewModel controlbarViewModel = (ControlbarViewModel) mPlayer.getViewModelForUiGroup(UiGroup.CONTROLBAR);
 
         controlbarViewModel
             .isUiLayerVisible()
-            .observe(this, isVisible -> {
+            .observe(this, (isVisible) -> {
                 if (isInPictureInPictureMode()) {
                     mCloseButton.setVisibility(View.GONE);
                     return;
@@ -124,7 +124,7 @@ public class PlayerActivity
         // Set the static instance reference in the plugin
         JwPlayerPlugin.setStaticPlayerInstance(mPlayer);
 
-        mPlayerView.setOnClickListener(v -> toggleSystemUI());
+        mPlayerView.setOnClickListener((v) -> toggleSystemUI());
 
         // Initialize JW Player license (ensure this is also done in Plugin if needed)
         // new LicenseUtil().setLicenseKey(this, "YOUR_LICENSE_KEY"); // Ideally get from Intent or Plugin
@@ -201,7 +201,8 @@ public class PlayerActivity
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-        if (mPlayer != null && !isInPictureInPictureMode()) { // Don't pause if entering PiP
+        if (mPlayer != null && !isInPictureInPictureMode()) {
+            // Don't pause if entering PiP
             // mPlayer.pause();
         }
     }
@@ -420,11 +421,11 @@ public class PlayerActivity
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                View.SYSTEM_UI_FLAG_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
             );
         }
     }
