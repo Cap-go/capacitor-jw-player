@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.0.11](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.10...7.0.11) (2025-10-15)
+
+
+### Bug Fixes
+
+* lock and lint ([7b08c68](https://github.com/Cap-go/capacitor-jw-player/commit/7b08c68e6fd8c1d6b254c1f20c5066fa58387b3a))
+
 ## [7.0.10](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.9...7.0.10) (2025-10-15)
 
 
