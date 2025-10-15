@@ -8,7 +8,7 @@ struct GoogleCastMetadata {
 
 let package = Package(
     name: "CapgoCapacitorJwPlayer",
-    platforms: [.iOS(.v14)],
+    platforms: [.iOS(.v15)],
     products: [
         .library(
             name: "CapgoCapacitorJwPlayer",

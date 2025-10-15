@@ -6,9 +6,9 @@
   <h2><a href="https://capgo.app/consulting/?ref=plugin"> Missing a feature? We’ll build the plugin for you 💪</a></h2>
 </div>
 
-WIP: do not use it yet it's in dev
-
 Play videos from jwplayer.com with a fullscreen player interface. The plugin provides a comprehensive API for controlling JW Player playback, playlists, and tracks.
+
+The latest version of the player require a min version of IOS 15
 
 ## Key Features
 
