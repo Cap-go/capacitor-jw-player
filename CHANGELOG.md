@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.0.15](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.14...7.0.15) (2025-10-20)
+
+
+### Bug Fixes
+
+* **deps:** update jwplayerversion to v4.21.0 ([#36](https://github.com/Cap-go/capacitor-jw-player/issues/36)) ([3608c65](https://github.com/Cap-go/capacitor-jw-player/commit/3608c65df7fa08212689ad908ba696662f588030))
+
 ## [7.0.14](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.13...7.0.14) (2025-10-20)
 
 ## [7.0.13](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.12...7.0.13) (2025-10-16)
