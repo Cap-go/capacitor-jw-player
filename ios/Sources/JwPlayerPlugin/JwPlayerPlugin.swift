@@ -16,6 +16,7 @@ protocol CallbackHandler {
 
 @objc(JwPlayerPlugin)
 public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
+    private let PLUGIN_VERSION: String = ""
     // public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
     public let jsName = "JwPlayer"
@@ -39,7 +40,8 @@ public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "setCurrentCaptions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setPlaylistIndex", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "currentPlaylist", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "resume", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "resume", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getPluginVersion", returnType: CAPPluginReturnPromise)
     ]
     private var viewController: CustomPlayerViewController?
 
@@ -957,6 +959,10 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         } else {
             print("[JWCastDelegate]: Casting ended successfully.")
         }
+    }
+
+    @objc func getPluginVersion(_ call: CAPPluginCall) {
+        call.resolve(["version": self.PLUGIN_VERSION])
     }
 
 }

@@ -22,6 +22,8 @@ import java.util.List;
 @CapacitorPlugin(name = "JwPlayer")
 public class JwPlayerPlugin extends Plugin {
 
+    private final String PLUGIN_VERSION = "";
+
     private static final String TAG = "JwPlayerPlugin";
     // Static reference to the plugin instance for activity communication
     private static WeakReference<JwPlayerPlugin> staticPluginRef;
@@ -528,6 +530,18 @@ public class JwPlayerPlugin extends Plugin {
                 return -1; // Unknown
         }
     }
+
     // TODO: Implement other methods like loadPlaylist, getAudioTracks, setAudioTrack, getCaptions, setCaptions etc.
     // These will require more complex communication with the PlayerActivity or direct player interaction.
+
+    @PluginMethod
+    public void getPluginVersion(final PluginCall call) {
+        try {
+            final JSObject ret = new JSObject();
+            ret.put("version", this.PLUGIN_VERSION);
+            call.resolve(ret);
+        } catch (final Exception e) {
+            call.reject("Could not get plugin version", e);
+        }
+    }
 }

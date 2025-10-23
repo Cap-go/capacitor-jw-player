@@ -396,4 +396,8 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
     }
     throw new Error('Player not active');
   }
+
+  async getPluginVersion(): Promise<{ version: string }> {
+    return { version: 'web' };
+  }
 }
