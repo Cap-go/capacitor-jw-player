@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.1.0](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.15...7.1.0) (2025-10-23)
+
+
+### Features
+
+* add getPluginVersion method to JwPlayerPlugin and web implementation; update workflows for changelog and Discord notifications ([d9cebea](https://github.com/Cap-go/capacitor-jw-player/commit/d9cebea5ed8e8b8a7eba221ad91387de4d2d08bb))
+
+
+### Bug Fixes
+
+* remove content field from Discord release notification ([7b53fc0](https://github.com/Cap-go/capacitor-jw-player/commit/7b53fc04b1b0939fb3fc60698087590ff6545546))
+
 ## [7.0.15](https://github.com/Cap-go/capacitor-jw-player/compare/7.0.14...7.0.15) (2025-10-20)
 
 
