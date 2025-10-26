@@ -20,6 +20,10 @@ The latest version of the player require a min version of IOS 15
 - Event listeners for player state changes
 Playes videos from jwplayer.com
 
+## Documentation
+
+The most complete doc is available here: https://capgo.app/docs/plugins/jw-player/
+
 ## Install
 
 ```bash
