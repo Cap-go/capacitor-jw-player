@@ -16,7 +16,7 @@ protocol CallbackHandler {
 
 @objc(JwPlayerPlugin)
 public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin {
-    private let PLUGIN_VERSION: String = "7.1.4"
+    private let PLUGIN_VERSION: String = "7.1.5"
     // public class JwPlayerPlugin: CAPPlugin, CAPBridgedPlugin, GCKLoggerDelegate {
     public let identifier = "JwPlayerPlugin"
     public let jsName = "JwPlayer"

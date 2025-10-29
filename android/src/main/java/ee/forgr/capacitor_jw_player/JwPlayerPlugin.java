@@ -22,7 +22,7 @@ import java.util.List;
 @CapacitorPlugin(name = "JwPlayer")
 public class JwPlayerPlugin extends Plugin {
 
-    private final String PLUGIN_VERSION = "7.1.4";
+    private final String PLUGIN_VERSION = "7.1.5";
 
     private static final String TAG = "JwPlayerPlugin";
     // Static reference to the plugin instance for activity communication

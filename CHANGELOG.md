@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.1.5](https://github.com/Cap-go/capacitor-jw-player/compare/7.1.4...7.1.5) (2025-10-29)
+
+
+### Bug Fixes
+
+* CI/CD config ([c426a75](https://github.com/Cap-go/capacitor-jw-player/commit/c426a756fb81949fda5db536a9feec17fb93a1a6))
+* update AI model in build workflow ([1f1f233](https://github.com/Cap-go/capacitor-jw-player/commit/1f1f2335bab7a0ea82e684d363cb6299fbfee840))
+* update github action ([00a6e9d](https://github.com/Cap-go/capacitor-jw-player/commit/00a6e9db05364d007bbaf611647074cc2b240b1f))
+
 ## [7.1.4](https://github.com/Cap-go/capacitor-jw-player/compare/7.1.3...7.1.4) (2025-10-27)
 
 
