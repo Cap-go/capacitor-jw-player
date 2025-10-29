@@ -559,6 +559,10 @@ extension JwPlayerPlugin: CallbackHandler {
             bridgeVC.present(vc, animated: true)
         }
     }
+
+    @objc func getPluginVersion(_ call: CAPPluginCall) {
+        call.resolve(["version": self.PLUGIN_VERSION])
+    }
 }
 
 // Add AVPictureInPictureControllerDelegate conformance
@@ -960,9 +964,4 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
             print("[JWCastDelegate]: Casting ended successfully.")
         }
     }
-
-    @objc func getPluginVersion(_ call: CAPPluginCall) {
-        call.resolve(["version": self.PLUGIN_VERSION])
-    }
-
 }
