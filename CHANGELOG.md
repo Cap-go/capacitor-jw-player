@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [7.2.0](https://github.com/Cap-go/capacitor-jw-player/compare/7.1.5...7.2.0) (2025-10-29)
+
+
+### Features
+
+* add getPluginVersion method to JwPlayerPlugin ([8a2bfb2](https://github.com/Cap-go/capacitor-jw-player/commit/8a2bfb2202d16bdd5b3c3643ebdc5c9a9b36d3da))
+
 ## [7.1.5](https://github.com/Cap-go/capacitor-jw-player/compare/7.1.4...7.1.5) (2025-10-29)
 
 
