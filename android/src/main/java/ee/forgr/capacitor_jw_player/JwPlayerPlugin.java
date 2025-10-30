@@ -22,7 +22,7 @@ import java.util.List;
 @CapacitorPlugin(name = "JwPlayer")
 public class JwPlayerPlugin extends Plugin {
 
-    private final String PLUGIN_VERSION = "7.2.0";
+    private final String pluginVersion = "7.2.0";
 
     private static final String TAG = "JwPlayerPlugin";
     // Static reference to the plugin instance for activity communication
@@ -538,7 +538,7 @@ public class JwPlayerPlugin extends Plugin {
     public void getPluginVersion(final PluginCall call) {
         try {
             final JSObject ret = new JSObject();
-            ret.put("version", this.PLUGIN_VERSION);
+            ret.put("version", this.pluginVersion);
             call.resolve(ret);
         } catch (final Exception e) {
             call.reject("Could not get plugin version", e);
