@@ -19,6 +19,6 @@ import Capacitor
     }
 
     @objc public func seekTo(_ call: CAPPluginCall) -> String {
-        return "seeked"
+        return "sought"
     }
 }

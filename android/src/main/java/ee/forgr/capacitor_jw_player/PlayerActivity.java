@@ -56,7 +56,7 @@ public class PlayerActivity
         VideoPlayerEvents.OnPlayListener,
         VideoPlayerEvents.OnCompleteListener,
         VideoPlayerEvents.OnSeekListener,
-        VideoPlayerEvents.OnSeekedListener,
+        VideoPlayerEvents.OnSoughtListener,
         VideoPlayerEvents.OnTimeListener,
         AdvertisingEvents.OnAdErrorListener,
         AdvertisingEvents.OnAdWarningListener,
@@ -94,7 +94,7 @@ public class PlayerActivity
         mPlayer = mPlayerView.getPlayer();
         mPlayer.registerActivityForPip(this, getSupportActionBar());
 
-        // Delte fullscreen button
+        // Delete fullscreen button
         ControlbarView customControlBar = mPlayerView.getControlsContainer().getControlbarView();
         ImageView enterFullScreenButton = customControlBar.findViewById(com.longtailvideo.jwplayer.R.id.controlbar_enter_fullscreen_btn);
         ImageView exitFullScreenButton = customControlBar.findViewById(com.longtailvideo.jwplayer.R.id.controlbar_exit_fullscreen_btn);
@@ -181,7 +181,7 @@ public class PlayerActivity
         mPlayer.addListener(EventType.PLAY, this);
         mPlayer.addListener(EventType.COMPLETE, this);
         mPlayer.addListener(EventType.SEEK, this);
-        mPlayer.addListener(EventType.SEEKED, this);
+        mPlayer.addListener(EventType.SOUGHT, this);
         mPlayer.addListener(EventType.TIME, this);
         mPlayer.addListener(EventType.AD_ERROR, this);
         mPlayer.addListener(EventType.AD_WARNING, this);
@@ -390,9 +390,9 @@ public class PlayerActivity
         JwPlayerPlugin.notifySeek(seekEvent.getPosition(), seekEvent.getOffset());
     }
 
-    public void onSeeked(SeekedEvent seekedEvent) {
-        Log.d(TAG, "onSeeked event");
-        JwPlayerPlugin.notifySeeked();
+    public void onSought(SoughtEvent soughtEvent) {
+        Log.d(TAG, "onSought event");
+        JwPlayerPlugin.notifySought();
     }
 
     public void onTime(TimeEvent timeEvent) {

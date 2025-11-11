@@ -200,7 +200,7 @@ export interface JwPlayerEvents {
   /**
    * Fired when the player has completed seeking
    */
-  seeked: void;
+  sought: void;
 
   /**
    * Fired periodically during playback with time updates (throttled)

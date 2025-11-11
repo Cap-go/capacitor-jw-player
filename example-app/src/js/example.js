@@ -229,7 +229,7 @@ async function seekToPosition() {
     try {
         const seekTime = parseFloat(document.getElementById('seekInput').value) || 0;
         await JwPlayer.seekTo({ time: seekTime });
-        showResult('Playback Control', `Seeked to ${seekTime} seconds`);
+        showResult('Playback Control', `Sought to ${seekTime} seconds`);
     } catch (error) {
         showResult('Error Seeking', error.message);
     }
