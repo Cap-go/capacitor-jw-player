@@ -50,7 +50,7 @@ repositories {
     }
 }
 
-def jwPlayerVersion = "4.21.1"
+def jwPlayerVersion = "4.23.0"
 def media3ExoVersion = "1.1.1"
 
 dependencies {
