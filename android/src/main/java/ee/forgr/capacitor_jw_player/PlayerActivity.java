@@ -56,7 +56,6 @@ public class PlayerActivity
         VideoPlayerEvents.OnPlayListener,
         VideoPlayerEvents.OnCompleteListener,
         VideoPlayerEvents.OnSeekListener,
-        VideoPlayerEvents.OnSoughtListener,
         VideoPlayerEvents.OnTimeListener,
         AdvertisingEvents.OnAdErrorListener,
         AdvertisingEvents.OnAdWarningListener,
@@ -181,7 +180,6 @@ public class PlayerActivity
         mPlayer.addListener(EventType.PLAY, this);
         mPlayer.addListener(EventType.COMPLETE, this);
         mPlayer.addListener(EventType.SEEK, this);
-        mPlayer.addListener(EventType.SOUGHT, this);
         mPlayer.addListener(EventType.TIME, this);
         mPlayer.addListener(EventType.AD_ERROR, this);
         mPlayer.addListener(EventType.AD_WARNING, this);
@@ -388,11 +386,6 @@ public class PlayerActivity
     public void onSeek(SeekEvent seekEvent) {
         Log.d(TAG, "onSeek event: position=" + seekEvent.getPosition() + ", offset=" + seekEvent.getOffset());
         JwPlayerPlugin.notifySeek(seekEvent.getPosition(), seekEvent.getOffset());
-    }
-
-    public void onSought(SoughtEvent soughtEvent) {
-        Log.d(TAG, "onSought event");
-        JwPlayerPlugin.notifySought();
     }
 
     public void onTime(TimeEvent timeEvent) {

@@ -496,13 +496,6 @@ public class JwPlayerPlugin extends Plugin {
         }
     }
 
-    public static void notifySought() {
-        JwPlayerPlugin plugin = staticPluginRef != null ? staticPluginRef.get() : null;
-        if (plugin != null) {
-            plugin.notifyListeners("sought", null);
-        }
-    }
-
     public static void notifyTime(double position, double duration) {
         JwPlayerPlugin plugin = staticPluginRef != null ? staticPluginRef.get() : null;
         if (plugin != null) {

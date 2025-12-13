@@ -801,20 +801,14 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
         callbackHandler?.notifyEventListener("complete", data: nil)
     }
 
-    override func jwplayer(_ player: JWPlayer, soughtFrom position: TimeInterval, to offset: TimeInterval) {
-        super.jwplayer(player, soughtFrom: position, to: offset)
-        print("[JWPlayer] Sought from \(position) to \(offset)")
+    override func jwplayer(_ player: JWPlayer, seekedFrom oldPosition: TimeInterval, to newPosition: TimeInterval) {
+        super.jwplayer(player, seekedFrom: oldPosition, to: newPosition)
+        print("[JWPlayer] Seeked from \(oldPosition) to \(newPosition)")
         let seekData: [String: Any] = [
-            "position": position,
-            "offset": offset
+            "position": oldPosition,
+            "offset": newPosition
         ]
         callbackHandler?.notifyEventListener("seek", data: seekData)
-    }
-
-    override func jwplayerHasSought(_ player: JWPlayer) {
-        super.jwplayerHasSought(player)
-        print("[JWPlayer] Sought")
-        callbackHandler?.notifyEventListener("sought", data: nil)
     }
 
     override func jwplayer(_ player: JWPlayer, didLoadPlaylistItem item: JWPlayerItem, at index: UInt) {
