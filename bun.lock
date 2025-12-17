@@ -13,7 +13,7 @@
         "@ionic/prettier-config": "^4.0.0",
         "@ionic/swiftlint-config": "^2.0.0",
         "@types/jwplayer": "^8.31.3",
-        "@types/node": "^24.10.1",
+        "@types/node": "^25.0.0",
         "eslint": "^8.57.1",
         "eslint-plugin-import": "^2.31.0",
         "prettier": "^3.6.2",
@@ -151,7 +151,7 @@
 
     "@types/jwplayer": ["@types/jwplayer@8.31.3", "", {}, "sha512-4QZ9k47QvQONqKuzMDlhrtBSc+v5kijtzjF+owqC3bAzktQP7pLcMhLB/Lp9T0DCao1FYvdoc4g3RUzSqIJIXg=="],
 
-    "@types/node": ["@types/node@24.10.3", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-gqkrWUsS8hcm0r44yn7/xZeV1ERva/nLgrLxFRUGb7aoNMIJfZJ3AC261zDQuOAKC7MiXai1WCpYc48jAHoShQ=="],
+    "@types/node": ["@types/node@25.0.3", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA=="],
 
     "@types/semver": ["@types/semver@7.7.1", "", {}, "sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA=="],
 
