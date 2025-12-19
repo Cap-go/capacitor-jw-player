@@ -849,10 +849,8 @@ class CustomPlayerViewController: JWPlayerViewController, JWPlayerViewController
 
     override func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         print("[JWPlayer] Delegate: PiP Will Start")
-        if #available(iOS 14.2, *) {
-            pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline = true
-            print("[JWPlayer] Set canStartPictureInPictureAutomaticallyFromInline to true. It's current value:  \(pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline)")
-        }
+        pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline = true
+        print("[JWPlayer] Set canStartPictureInPictureAutomaticallyFromInline to true. It's current value:  \(pictureInPictureController.canStartPictureInPictureAutomaticallyFromInline)")
         super.pictureInPictureControllerWillStartPictureInPicture(pictureInPictureController)
     }
 
