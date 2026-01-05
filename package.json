@@ -1,6 +1,6 @@
 {
   "name": "@capgo/capacitor-jw-player",
-  "version": "8.0.11",
+  "version": "8.0.12",
   "description": "Playes videos from jwplayer.com",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
