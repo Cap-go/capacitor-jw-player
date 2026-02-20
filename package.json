@@ -57,7 +57,7 @@
     "@ionic/swiftlint-config": "^2.0.0",
     "@types/jwplayer": "^8.31.3",
     "@types/node": "^24.10.1",
-    "eslint": "^8.57.1",
+    "eslint": "^10.0.0",
     "eslint-plugin-import": "^2.31.0",
     "prettier": "^3.6.2",
     "prettier-plugin-java": "^2.7.7",
