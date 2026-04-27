@@ -15,7 +15,7 @@ let package = Package(
             targets: ["JwPlayerPlugin"])
     ],
     dependencies: [
-        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.0.0"),
+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", from: "8.3.1"),
         .package(url: "https://github.com/jwplayer/JWPlayerKit-package.git", .upToNextMajor(from: "4.26.0"))
     ],
     targets: [
