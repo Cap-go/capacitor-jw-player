@@ -44,9 +44,17 @@ prepare_platform() {
   bunx cap add "$platform_name"
 }
 
+add_jwplayer_maven_repository() {
+  local gradle_file="android/build.gradle"
+  if ! grep -q "mvn.jwplayer.com" "$gradle_file"; then
+    printf "\nallprojects { repositories { maven { url 'https://mvn.jwplayer.com/content/repositories/releases/' } } }\n" >> "$gradle_file"
+  fi
+}
+
 case "$platform" in
   android)
     prepare_platform android
+    add_jwplayer_maven_repository
     bunx cap sync android
     cd android
     ./gradlew build test
