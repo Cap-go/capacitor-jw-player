@@ -1,6 +1,9 @@
 import { JwPlayer } from '@capgo/capacitor-jw-player';
 import { Capacitor } from '@capacitor/core';
-import { licenseKeyIos, licenseKeyAndroid, playerUrl } from './license';
+
+const licenseKeyIos = import.meta.env.VITE_JW_LICENSE_KEY_IOS ?? '';
+const licenseKeyAndroid = import.meta.env.VITE_JW_LICENSE_KEY_ANDROID ?? '';
+const playerUrl = import.meta.env.VITE_JW_PLAYER_URL ?? '';
 
 // For displaying results
 const showResult = (title, data) => {
@@ -368,4 +371,3 @@ async function getState() {
         showResult('Error Getting State', error.message);
     }
 }
-

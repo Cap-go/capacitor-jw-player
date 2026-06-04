@@ -38,15 +38,29 @@ bun remove "$plugin_name"
 bun add "${packed_packages[0]}"
 bun run build
 
+prepare_platform() {
+  local platform_name="$1"
+  rm -rf "$platform_name"
+  bunx cap add "$platform_name"
+}
+
+add_jwplayer_maven_repository() {
+  local gradle_file="android/build.gradle"
+  if ! grep -q "mvn.jwplayer.com" "$gradle_file"; then
+    printf "\nallprojects { repositories { maven { url 'https://mvn.jwplayer.com/content/repositories/releases/' } } }\n" >> "$gradle_file"
+  fi
+}
+
 case "$platform" in
   android)
-    bunx cap add android
+    prepare_platform android
+    add_jwplayer_maven_repository
     bunx cap sync android
     cd android
     ./gradlew build test
     ;;
   ios)
-    bunx cap add ios
+    prepare_platform ios
     bunx cap sync ios
     xcodebuild -project ios/App/App.xcodeproj -scheme App -destination generic/platform=iOS CODE_SIGNING_ALLOWED=NO
     ;;
