@@ -232,11 +232,21 @@ function phaseObject(phaseId) {
 \t\t\tinputFileListPaths = (
 \t\t\t);
 \t\t\tinputPaths = (
+\t\t\t\t"$(BUILD_DIR)",
+\t\t\t\t"$(BUILD_DIR)/../../../../../SourcePackages/artifacts",
+\t\t\t\t"$(BUILD_DIR)/../../SourcePackages/artifacts",
+\t\t\t\t"$(BUILD_DIR)/../SourcePackages/artifacts",
+\t\t\t\t"$(HOME)/Library/Developer/Xcode/DerivedData",
+\t\t\t\t"$(PODS_ROOT)",
+\t\t\t\t"$(PROJECT_DIR)",
+\t\t\t\t"$(SRCROOT)",
 \t\t\t);
 \t\t\tname = "${phaseName}";
 \t\t\toutputFileListPaths = (
 \t\t\t);
 \t\t\toutputPaths = (
+\t\t\t\t"$(ARCHIVE_PATH)/dSYMs",
+\t\t\t\t"$(DWARF_DSYM_FOLDER_PATH)",
 \t\t\t);
 \t\t\trunOnlyForDeploymentPostprocessing = 0;
 \t\t\tshellPath = /bin/sh;
