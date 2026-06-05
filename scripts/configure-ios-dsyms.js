@@ -245,8 +245,10 @@ function phaseObject(phaseId) {
 \t\t\toutputFileListPaths = (
 \t\t\t);
 \t\t\toutputPaths = (
-\t\t\t\t"$(ARCHIVE_PATH)/dSYMs",
-\t\t\t\t"$(DWARF_DSYM_FOLDER_PATH)",
+\t\t\t\t"$(ARCHIVE_PATH)/dSYMs/GoogleCast.framework.dSYM",
+\t\t\t\t"$(ARCHIVE_PATH)/dSYMs/JWPlayerKit.framework.dSYM",
+\t\t\t\t"$(DWARF_DSYM_FOLDER_PATH)/GoogleCast.framework.dSYM",
+\t\t\t\t"$(DWARF_DSYM_FOLDER_PATH)/JWPlayerKit.framework.dSYM",
 \t\t\t);
 \t\t\trunOnlyForDeploymentPostprocessing = 0;
 \t\t\tshellPath = /bin/sh;
