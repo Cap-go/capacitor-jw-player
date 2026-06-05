@@ -257,11 +257,16 @@ function phaseObject(phaseId) {
 }
 
 function addShellScriptPhase(content, phaseId) {
-  if (findExistingPhaseId(content)) {
-    return content;
+  const object = phaseObject(phaseId);
+  const existingPhaseId = findExistingPhaseId(content);
+  if (existingPhaseId) {
+    const existingPhasePattern = new RegExp(
+      `\\t\\t${escapeRegExp(existingPhaseId)} /\\* ${escapeRegExp(phaseName)} \\*/ = \\{[\\s\\S]*?\\n\\t\\t\\};`,
+      'm',
+    );
+    return content.replace(existingPhasePattern, object);
   }
 
-  const object = phaseObject(phaseId);
   if (content.includes('/* Begin PBXShellScriptBuildPhase section */')) {
     return content.replace(
       '/* End PBXShellScriptBuildPhase section */',
@@ -323,11 +328,7 @@ function configureIosDsyms() {
     return;
   }
 
-  const rootDir = process.env.CAPACITOR_ROOT_DIR;
-  if (!rootDir) {
-    warn('Skipping iOS dSYM configuration because CAPACITOR_ROOT_DIR is missing.');
-    return;
-  }
+  const rootDir = process.env.CAPACITOR_ROOT_DIR || process.cwd();
 
   const projectFile = findProjectFile(rootDir);
   if (!projectFile) {
