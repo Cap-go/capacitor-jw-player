@@ -20,6 +20,14 @@ function exists(filePath) {
   return fs.existsSync(filePath);
 }
 
+function hasApplicationTarget(projectFile) {
+  try {
+    return fs.readFileSync(projectFile, 'utf8').includes('productType = "com.apple.product-type.application";');
+  } catch {
+    return false;
+  }
+}
+
 function stablePbxId(seed) {
   return crypto.createHash('sha1').update(seed).digest('hex').slice(0, 24).toUpperCase();
 }
@@ -52,10 +60,18 @@ function findProjectFile(rootDir) {
     const current = stack.pop();
     const entries = fs.readdirSync(current, { withFileTypes: true });
     for (const entry of entries) {
+      if (entry.name === 'Pods') {
+        continue;
+      }
+
       const entryPath = path.join(current, entry.name);
       if (entry.isDirectory() && entry.name.endsWith('.xcodeproj')) {
+        if (entry.name === 'Pods.xcodeproj') {
+          continue;
+        }
+
         const pbxproj = path.join(entryPath, 'project.pbxproj');
-        if (exists(pbxproj)) {
+        if (exists(pbxproj) && hasApplicationTarget(pbxproj)) {
           return pbxproj;
         }
         continue;
