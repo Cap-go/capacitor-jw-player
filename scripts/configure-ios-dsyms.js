@@ -24,6 +24,18 @@ function stablePbxId(seed) {
   return crypto.createHash('sha1').update(seed).digest('hex').slice(0, 24).toUpperCase();
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function findExistingPhaseId(content) {
+  const pattern = new RegExp(
+    `([A-F0-9]{24}) /\\* ${escapeRegExp(phaseName)} \\*/ = \\{[\\s\\S]*?isa = PBXShellScriptBuildPhase;`,
+    'm',
+  );
+  return pattern.exec(content)?.[1] || '';
+}
+
 function findProjectFile(rootDir) {
   const preferred = path.join(rootDir, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj');
   if (exists(preferred)) {
@@ -92,6 +104,39 @@ function shellScript() {
     '  return 1',
     '}',
     '',
+    'copy_prebuilt_dsym() {',
+    '  framework="$1"',
+    '  dsym_path="$2"',
+    '  binary="$3"',
+    '  binary_uuid="$(dwarfdump --uuid "$binary" 2>/dev/null | awk \'NR == 1 {print $2}\')"',
+    '  [ -n "$binary_uuid" ] || return 1',
+    '',
+    '  for root in \\',
+    '    "${PODS_ROOT:-}" \\',
+    '    "${SRCROOT:-}" \\',
+    '    "${PROJECT_DIR:-}" \\',
+    '    "${BUILD_DIR:-}/../../SourcePackages/artifacts" \\',
+    '    "${BUILD_DIR:-}/../SourcePackages/artifacts" \\',
+    '    "${HOME:-}/Library/Developer/Xcode/DerivedData"',
+    '  do',
+    '    [ -d "$root" ] || continue',
+    '    old_ifs="$IFS"',
+    "    IFS='",
+    "'",
+    '    for candidate in $(find "$root" -type d -name "$framework.framework.dSYM" 2>/dev/null); do',
+    '      if dwarfdump --uuid "$candidate" 2>/dev/null | awk \'{print $2}\' | grep -qi "^$binary_uuid$"; then',
+    '        rm -rf "$dsym_path"',
+    '        cp -R "$candidate" "$dsym_path"',
+    '        IFS="$old_ifs"',
+    '        log "Copied vendor $framework.framework.dSYM."',
+    '        return 0',
+    '      fi',
+    '    done',
+    '    IFS="$old_ifs"',
+    '  done',
+    '  return 1',
+    '}',
+    '',
     'copy_to_archive() {',
     '  dsym_path="$1"',
     '  framework="$2"',
@@ -99,10 +144,9 @@ function shellScript() {
     '    case "$archive_dsyms" in',
     '      ""|"/dSYMs") continue ;;',
     '    esac',
-    '    if [ -d "$archive_dsyms" ]; then',
-    '      rm -rf "$archive_dsyms/$framework.framework.dSYM"',
-    '      cp -R "$dsym_path" "$archive_dsyms/"',
-    '    fi',
+    '    mkdir -p "$archive_dsyms"',
+    '    rm -rf "$archive_dsyms/$framework.framework.dSYM"',
+    '    cp -R "$dsym_path" "$archive_dsyms/"',
     '  done',
     '}',
     '',
@@ -117,7 +161,12 @@ function shellScript() {
     '',
     '  dsym_path="$DWARF_DSYM_FOLDER_PATH/$framework.framework.dSYM"',
     '  rm -rf "$dsym_path"',
-    '  if xcrun dsymutil "$binary" -o "$dsym_path" >/dev/null 2>&1; then',
+    '  if copy_prebuilt_dsym "$framework" "$dsym_path" "$binary"; then',
+    '    copy_to_archive "$dsym_path" "$framework"',
+    '    continue',
+    '  fi',
+    '',
+    '  if xcrun dsymutil "$binary" -o "$dsym_path" >/dev/null; then',
     '    log "Prepared $framework.framework.dSYM."',
     '    copy_to_archive "$dsym_path" "$framework"',
     '  else',
@@ -152,7 +201,7 @@ function phaseObject(phaseId) {
 }
 
 function addShellScriptPhase(content, phaseId) {
-  if (content.includes(`/* ${phaseName} */`)) {
+  if (findExistingPhaseId(content)) {
     return content;
   }
 
@@ -171,16 +220,22 @@ function addShellScriptPhase(content, phaseId) {
 }
 
 function addPhaseToApplicationTarget(content, phaseId) {
-  const targetPattern =
-    /([A-F0-9]{24}) \/\* [^*]+ \*\/ = \{[\s\S]*?isa = PBXNativeTarget;[\s\S]*?productType = "com\.apple\.product-type\.application";[\s\S]*?\n\t\t\};/g;
-  const targetMatch = targetPattern.exec(content);
+  const targetPattern = /[A-F0-9]{24} \/\* [^*]+ \*\/ = \{[\s\S]*?\n\t\t\};/g;
+  const targetMatch = Array.from(content.matchAll(targetPattern)).find((match) => {
+    const targetBlock = match[0];
+    return (
+      targetBlock.includes('isa = PBXNativeTarget;') &&
+      targetBlock.includes('productType = "com.apple.product-type.application";')
+    );
+  });
+
   if (!targetMatch) {
     warn('Skipping iOS dSYM configuration because no application target was found.');
     return content;
   }
 
   const targetBlock = targetMatch[0];
-  if (targetBlock.includes(`/* ${phaseName} */`)) {
+  if (targetBlock.includes(`${phaseId} /* ${phaseName} */`)) {
     return content;
   }
 
@@ -213,8 +268,8 @@ function configureIosDsyms() {
     return;
   }
 
-  const phaseId = stablePbxId(phaseName);
   const currentContent = fs.readFileSync(projectFile, 'utf8');
+  const phaseId = findExistingPhaseId(currentContent) || stablePbxId(phaseName);
   let nextContent = addShellScriptPhase(currentContent, phaseId);
   nextContent = addPhaseToApplicationTarget(nextContent, phaseId);
 
