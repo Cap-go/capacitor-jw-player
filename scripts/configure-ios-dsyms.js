@@ -105,6 +105,7 @@ function shellScript() {
     '    "${PODS_ROOT:-}" \\',
     '    "${SRCROOT:-}" \\',
     '    "${PROJECT_DIR:-}" \\',
+    '    "${BUILD_DIR:-}/../../../../../SourcePackages/artifacts" \\',
     '    "${BUILD_DIR:-}/../../SourcePackages/artifacts" \\',
     '    "${BUILD_DIR:-}/../SourcePackages/artifacts" \\',
     '    "${HOME:-}/Library/Developer/Xcode/DerivedData"',
@@ -264,34 +265,45 @@ function addShellScriptPhase(content, phaseId) {
 
 function addPhaseToApplicationTarget(content, phaseId) {
   const targetPattern = /[A-F0-9]{24} \/\* [^*]+ \*\/ = \{[\s\S]*?\n\t\t\};/g;
-  const targetMatch = Array.from(content.matchAll(targetPattern)).find((match) => {
-    const targetBlock = match[0];
-    return (
-      targetBlock.includes('isa = PBXNativeTarget;') &&
-      targetBlock.includes('productType = "com.apple.product-type.application";')
-    );
+  let foundApplicationTarget = false;
+  let updatedApplicationTarget = false;
+
+  const nextContent = content.replace(targetPattern, (targetBlock) => {
+    if (
+      !targetBlock.includes('isa = PBXNativeTarget;') ||
+      !targetBlock.includes('productType = "com.apple.product-type.application";')
+    ) {
+      return targetBlock;
+    }
+
+    foundApplicationTarget = true;
+    if (targetBlock.includes(`${phaseId} /* ${phaseName} */`)) {
+      return targetBlock;
+    }
+
+    const nextTargetBlock = targetBlock.replace(/buildPhases = \(([\s\S]*?)\n\t\t\t\);/, (_match, phases) => {
+      return `buildPhases = (${phases}\n\t\t\t\t${phaseId} /* ${phaseName} */,\n\t\t\t);`;
+    });
+
+    if (nextTargetBlock === targetBlock) {
+      warn('Skipping one iOS dSYM configuration because an application target build phases list could not be updated.');
+      return targetBlock;
+    }
+
+    updatedApplicationTarget = true;
+    return nextTargetBlock;
   });
 
-  if (!targetMatch) {
+  if (!foundApplicationTarget) {
     warn('Skipping iOS dSYM configuration because no application target was found.');
     return content;
   }
 
-  const targetBlock = targetMatch[0];
-  if (targetBlock.includes(`${phaseId} /* ${phaseName} */`)) {
+  if (!updatedApplicationTarget) {
     return content;
   }
 
-  const nextTargetBlock = targetBlock.replace(/buildPhases = \(([\s\S]*?)\n\t\t\t\);/, (_match, phases) => {
-    return `buildPhases = (${phases}\n\t\t\t\t${phaseId} /* ${phaseName} */,\n\t\t\t);`;
-  });
-
-  if (nextTargetBlock === targetBlock) {
-    warn('Skipping iOS dSYM configuration because the application target build phases could not be updated.');
-    return content;
-  }
-
-  return content.replace(targetBlock, nextTargetBlock);
+  return nextContent;
 }
 
 function configureIosDsyms() {
