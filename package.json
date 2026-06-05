@@ -13,7 +13,8 @@
     "ios/Sources",
     "ios/Tests",
     "Package.swift",
-    "CapgoCapacitorJwPlayer.podspec"
+    "CapgoCapacitorJwPlayer.podspec",
+    "scripts/configure-ios-dsyms.js"
   ],
   "author": "Martin Donadieu <martin@capgo.app>",
   "license": "MPL-2.0",
@@ -31,6 +32,8 @@
     "native"
   ],
   "scripts": {
+    "capacitor:sync:after": "node scripts/configure-ios-dsyms.js",
+    "capacitor:update:after": "node scripts/configure-ios-dsyms.js",
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
     "verify:ios": "xcodebuild -scheme CapgoCapacitorJwPlayer -destination generic/platform=iOS",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
