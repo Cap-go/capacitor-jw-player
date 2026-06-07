@@ -1,3 +1,4 @@
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { JwPlayer } from '@capgo/capacitor-jw-player';
 import { Capacitor } from '@capacitor/core';
 
@@ -370,4 +371,10 @@ async function getState() {
     } catch (error) {
         showResult('Error Getting State', error.message);
     }
+}
+
+if (Capacitor.isNativePlatform()) {
+  CapacitorUpdater.notifyAppReady().catch((error) => {
+    console.error('Capgo notifyAppReady failed', error);
+  });
 }
