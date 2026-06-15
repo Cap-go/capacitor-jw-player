@@ -50,8 +50,8 @@ repositories {
     }
 }
 
-def jwPlayerVersion = "4.25.0"
-def media3ExoVersion = "1.10.0"
+def jwPlayerVersion = "4.25.2"
+def media3ExoVersion = "1.10.1"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
