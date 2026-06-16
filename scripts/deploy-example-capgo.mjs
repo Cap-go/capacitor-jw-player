@@ -54,6 +54,12 @@ const channel = process.env.CAPGO_CHANNEL || process.argv[2] || 'production';
 function usableVersion(version) {
   return version && version !== '0.0.0' ? version : undefined;
 }
+function nextPatchPrerelease(version) {
+  const match = version?.match(/^(\d+)\.(\d+)\.(\d+)(?:-.+)?$/);
+  if (!match) return undefined;
+  return `${match[1]}.${match[2]}.${Number(match[3]) + 1}-${Date.now()}`;
+}
+
 
 const defaultBundle = usableVersion(examplePackageJson.version) || usableVersion(rootPackageJson.version);
 const localBundleVersion = nextPatchPrerelease(defaultBundle);
