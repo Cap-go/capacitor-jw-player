@@ -2,9 +2,17 @@
   "appId": "app.capgo.jw.player",
   "appName": "Jw Player Example",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": false
+    },
+    "CapacitorUpdater": {
+      "appId": "app.capgo.jw.player",
+      "autoUpdate": true,
+      "autoSplashscreen": true,
+      "directUpdate": "always",
+      "version": "1.0.0"
     }
   }
 }
