@@ -4,7 +4,7 @@ import pkg from './package.json';
 
 const config: CapacitorConfig = {
   appId: 'app.capgo.jw.player',
-  appName: 'Jw Player Example',
+  appName: '@capgo/capacitor-jw-player',
   webDir: 'dist',
   plugins: {
     SplashScreen: {
