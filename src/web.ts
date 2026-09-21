@@ -282,23 +282,13 @@ export class JwPlayerWeb extends WebPlugin implements JwPlayerPlugin {
     // jwplayer: BUFFERING(3), IDLE(0), COMPLETE(4), PAUSED(2), PLAYING(1)
     // our API: IDLE(0), BUFFERING(1), PLAYING(2), PAUSED(3), COMPLETE(4)
     const jwState = this.jwPlayerInstance.getState();
-    let state = 0;
+    const stateMap: Record<string, number> = {
+      buffering: 1,
+      playing: 2,
+      paused: 3,
+    };
 
-    switch (jwState) {
-      case 'buffering':
-        state = 1;
-        break;
-      case 'playing':
-        state = 2;
-        break;
-      case 'paused':
-        state = 3;
-        break;
-      default:
-        state = 0; // idle
-    }
-
-    return { state };
+    return { state: stateMap[jwState] ?? 0 };
   }
 
   async setSpeed(options: { speed: number }): Promise<void> {
