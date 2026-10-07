@@ -1,10 +1,27 @@
 # @capgo/capacitor-jw-player
-<a href="https://capgo.app/"><img src="https://capgo.app/readme-banner.svg?repo=Cap-go/capacitor-jw-player" alt="Capgo - Instant updates for Capacitor" /></a>
+
+Play videos and playlists from JW Player in your Capacitor app with the native JW Player SDKs on iOS and Android, in a fullscreen player.
+
+<a href="https://capgo.app/?ref=plugin_jw_player"><img src="https://capgo.app/readme-banner.svg?repo=Cap-go/capacitor-jw-player" alt="Capgo - Instant updates for Capacitor" /></a>
 
 <div align="center">
-  <h2><a href="https://capgo.app/?ref=plugin_jw_player"> ➡️ Get Instant updates for your App with Capgo</a></h2>
-  <h2><a href="https://capgo.app/consulting/?ref=plugin_jw_player"> Missing a feature? We’ll build the plugin for you 💪</a></h2>
+  <p><b>Capgo</b>: open-source live updates for Ionic and Capacitor apps. Ship OTA fixes and features instantly, without waiting for app store review.</p>
+  <h2><a href="https://capgo.app/register/?ref=plugin_jw_player">➡️ Get started for free</a></h2>
+  <p>14-day unlimited free trial. No credit card required</p>
+  <p><a href="https://capgo.app/consulting/?ref=plugin_jw_player">Missing a feature? We'll build the plugin for you 💪</a></p>
 </div>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Cap-go/capacitor-jw-player/main/assets/github-social-preview.png" alt="@capgo/capacitor-jw-player for Capacitor apps" width="300" />
+</p>
+
+## Key features
+
+- **Playback**: `initialize()` with your license key, then `play()`, `pause()`, `resume()`, `stop()` and `seekTo()`.
+- **Playlists**: `loadPlaylist()`, `loadPlaylistWithItems()` and `setPlaylistIndex()`.
+- **Tracks**: audio track and captions selection.
+- **Controls**: `setVolume()`, `setSpeed()`, `getPosition()` and `getState()`.
+- **Platforms**: iOS, Android and Web. Uses JWPlayerKit on iOS and the JW Player Android SDK. Web uses the JW Player web player.
 
 Play videos from jwplayer.com with a fullscreen player interface. The plugin provides a comprehensive API for controlling JW Player playback, playlists, and tracks.
 
