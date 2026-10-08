@@ -59,7 +59,8 @@ public class PlayerActivity
         VideoPlayerEvents.OnTimeListener,
         AdvertisingEvents.OnAdErrorListener,
         AdvertisingEvents.OnAdWarningListener,
-        VideoPlayerEvents.OnMetaListener {
+        VideoPlayerEvents.OnMetaListener
+{
 
     private static final String TAG = "PlayerActivity";
     public static final String EXTRA_MEDIA_URL = "mediaUrl";
@@ -110,15 +111,13 @@ public class PlayerActivity
 
         ControlbarViewModel controlbarViewModel = (ControlbarViewModel) mPlayer.getViewModelForUiGroup(UiGroup.CONTROLBAR);
 
-        controlbarViewModel
-            .isUiLayerVisible()
-            .observe(this, (isVisible) -> {
-                if (isInPictureInPictureMode()) {
-                    mCloseButton.setVisibility(View.GONE);
-                    return;
-                }
-                mCloseButton.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
-            });
+        controlbarViewModel.isUiLayerVisible().observe(this, (isVisible) -> {
+            if (isInPictureInPictureMode()) {
+                mCloseButton.setVisibility(View.GONE);
+                return;
+            }
+            mCloseButton.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+        });
 
         // Set the static instance reference in the plugin
         JwPlayerPlugin.setStaticPlayerInstance(mPlayer);
